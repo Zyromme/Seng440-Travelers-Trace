@@ -73,7 +73,7 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun TravelersTraceTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean,
     content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) {
