@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
+import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +20,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
-                        MainScreen(navController = navController)
+                        MainScreen(navController = navController, FakeDatabase.journeyList)
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {
