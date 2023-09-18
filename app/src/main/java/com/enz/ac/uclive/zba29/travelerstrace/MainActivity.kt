@@ -3,6 +3,7 @@ package com.enz.ac.uclive.zba29.travelerstrace
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,8 +15,18 @@ import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //TODO
+        val isDark = mutableStateOf(false)
+
+        fun toggleTheme(boolean: Boolean) {
+            isDark.value = boolean
+        }
+
         setContent {
-            TravelersTraceTheme {
+            TravelersTraceTheme(
+                darkTheme = isDark.value
+            ) {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
@@ -26,7 +37,7 @@ class MainActivity : ComponentActivity() {
                         MapScreen(navController = navController)
                     }
                     composable(route = Screen.SettingsScreen.route) {
-                        SettingsScreen(navController = navController)
+                        SettingsScreen(navController = navController, currentTheme = isDark.value, onToggleTheme = {boolean -> toggleTheme(boolean)})
                     }
                     composable(
                         route = Screen.JourneyDetailScreen.route + "/{journeyId}",
