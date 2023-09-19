@@ -20,24 +20,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
+import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController,
-                   currentTheme: Boolean,
-                   onToggleTheme: (Boolean) -> Unit) {
+fun SettingsScreen(
+    navController: NavController,
+    currentSettings: Settings,
+    onToggleTheme: (Boolean) -> Unit) {
+    val scope = rememberCoroutineScope()
+    val settingsStore = StoreSettings.getInstance(LocalContext.current)
 
     val distanceMetrics = arrayOf("km", "mi")
     val languages = arrayOf("English", "Pirate")
@@ -45,10 +52,23 @@ fun SettingsScreen(navController: NavController,
     var metricExpanded by remember { mutableStateOf(false) }
     var languageExpanded by remember { mutableStateOf(false) }
 
-    var selectedMetric by remember { mutableStateOf(distanceMetrics[0]) }
-    var selectedLanguage by remember { mutableStateOf(languages[0]) }
+    val settings = remember {
+        mutableStateOf(currentSettings)
+    }
 
+    fun changeMetric(newMetric: String) {
+        settings.value.metric = newMetric
+        scope.launch {
+            settingsStore.setSettings(settings.value)
+        }
+    }
 
+    fun changeLanguage(newLanguage: String) {
+        settings.value.language = newLanguage
+        scope.launch {
+            settingsStore.setSettings(settings.value)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -75,7 +95,7 @@ fun SettingsScreen(navController: NavController,
                 ) {
                     Text(text = "Dark Mode")
                     Switch(
-                        checked = currentTheme,
+                        checked = settings.value.isDark,
                         onCheckedChange = {
                             onToggleTheme(it)
                         }
@@ -97,7 +117,7 @@ fun SettingsScreen(navController: NavController,
                         }
                     ) {
                         TextField(
-                            value = selectedMetric,
+                            value = settings.value.metric,
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricExpanded) },
@@ -116,7 +136,7 @@ fun SettingsScreen(navController: NavController,
                                 DropdownMenuItem(
                                     text = { Text(text = item) },
                                     onClick = {
-                                        selectedMetric = item
+                                        changeMetric(item)
                                         metricExpanded = false
                                     }
                                 )
@@ -140,7 +160,7 @@ fun SettingsScreen(navController: NavController,
                         }
                     ) {
                         TextField(
-                            value = selectedLanguage,
+                            value = settings.value.language,
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricExpanded) },
@@ -159,7 +179,7 @@ fun SettingsScreen(navController: NavController,
                                 DropdownMenuItem(
                                     text = { Text(text = item) },
                                     onClick = {
-                                        selectedLanguage = item
+                                        changeLanguage(item)
                                         languageExpanded = false
                                     }
                                 )
@@ -171,3 +191,4 @@ fun SettingsScreen(navController: NavController,
         }
     )
 }
+
