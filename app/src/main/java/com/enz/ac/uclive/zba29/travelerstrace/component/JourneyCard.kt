@@ -1,5 +1,6 @@
 package com.enz.ac.uclive.zba29.travelerstrace.component
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +21,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
@@ -102,5 +110,34 @@ fun JourneyCard(journey: Journey) {
             }
 
         }
+    }
+}
+
+@Composable
+fun customShape() = object : Shape {
+    val configuration = LocalConfiguration.current
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+
+        val right = when (configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                size.width * 9f / 10f
+            }
+            else -> {
+                size.width * 9f / 10f
+            }
+        }
+
+        return Outline.Rectangle(
+            Rect(
+                left = 0f,
+                top = 0f,
+                right = right,
+                bottom = size.height
+            )
+        )
     }
 }
