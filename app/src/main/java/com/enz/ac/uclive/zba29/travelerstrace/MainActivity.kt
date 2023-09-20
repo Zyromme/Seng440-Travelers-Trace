@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,28 +33,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             val scope = rememberCoroutineScope()
             val settingsStore = StoreSettings.getInstance(LocalContext.current)
-            val isDark = remember {
-                mutableStateOf(false)
-            }
-            val settings = remember {
+            var isDark by remember { mutableStateOf(false) }
+            var settings by remember {
                 mutableStateOf<Settings?>(Settings(isDark = true, metric = "km", language = "English"))
             }
 
             scope.launch {
-                settings.value = settingsStore.getSettings().first()
-                isDark.value = settings.value!!.isDark
+                settings = settingsStore.getSettings().first()
+                isDark = settings!!.isDark
             }
 
-            fun toggleTheme(boolean: Boolean) {
-                settings.value?.isDark = boolean
+            fun updateSettings(newSettings: Settings) {
                 scope.launch {
-                    settings.value?.let { settingsStore.setSettings(it) }
+                    settingsStore.setSettings(newSettings)
                 }
-                isDark.value = boolean
+                isDark = newSettings.isDark
             }
 
             TravelersTraceTheme(
-                darkTheme = isDark.value
+                darkTheme = isDark
             ) {
 
                 val navController = rememberNavController()
@@ -65,11 +64,7 @@ class MainActivity : ComponentActivity() {
                         MapScreen(navController = navController)
                     }
                     composable(route = Screen.SettingsScreen.route) {
-                        SettingsScreen(navController = navController, currentSettings = settings.value!!) { boolean ->
-                            toggleTheme(
-                                boolean
-                            )
-                        }
+                        SettingsScreen(navController = navController, currentSettings = settings!!, onSettingsChange = {newSettings -> updateSettings(newSettings)})
                     }
                     composable(
                         route = Screen.JourneyDetailScreen.route + "/{journeyId}",

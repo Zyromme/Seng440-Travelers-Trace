@@ -25,16 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,9 +38,7 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     navController: NavController,
     currentSettings: Settings,
-    onToggleTheme: (Boolean) -> Unit) {
-    val scope = rememberCoroutineScope()
-    val settingsStore = StoreSettings.getInstance(LocalContext.current)
+    onSettingsChange: (Settings) -> Unit) {
 
     val distanceMetrics = arrayOf("km", "mi")
     val languages = arrayOf("English", "Pirate")
@@ -52,23 +46,7 @@ fun SettingsScreen(
     var metricExpanded by remember { mutableStateOf(false) }
     var languageExpanded by remember { mutableStateOf(false) }
 
-    val settings = remember {
-        mutableStateOf(currentSettings)
-    }
-
-    fun changeMetric(newMetric: String) {
-        settings.value.metric = newMetric
-        scope.launch {
-            settingsStore.setSettings(settings.value)
-        }
-    }
-
-    fun changeLanguage(newLanguage: String) {
-        settings.value.language = newLanguage
-        scope.launch {
-            settingsStore.setSettings(settings.value)
-        }
-    }
+    val settings by remember { mutableStateOf(currentSettings) }
 
     Scaffold(
         topBar = {
@@ -95,9 +73,10 @@ fun SettingsScreen(
                 ) {
                     Text(text = "Dark Mode")
                     Switch(
-                        checked = settings.value.isDark,
+                        checked = settings.isDark,
                         onCheckedChange = {
-                            onToggleTheme(it)
+                            settings.isDark = it
+                            onSettingsChange(settings)
                         }
                     )
                 }
@@ -117,7 +96,7 @@ fun SettingsScreen(
                         }
                     ) {
                         TextField(
-                            value = settings.value.metric,
+                            value = settings.metric,
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricExpanded) },
@@ -136,7 +115,8 @@ fun SettingsScreen(
                                 DropdownMenuItem(
                                     text = { Text(text = item) },
                                     onClick = {
-                                        changeMetric(item)
+                                        settings.metric = item
+                                        onSettingsChange(settings)
                                         metricExpanded = false
                                     }
                                 )
@@ -160,7 +140,7 @@ fun SettingsScreen(
                         }
                     ) {
                         TextField(
-                            value = settings.value.language,
+                            value = settings.language,
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricExpanded) },
@@ -179,7 +159,8 @@ fun SettingsScreen(
                                 DropdownMenuItem(
                                     text = { Text(text = item) },
                                     onClick = {
-                                        changeLanguage(item)
+                                        settings.language = item
+                                        onSettingsChange(settings)
                                         languageExpanded = false
                                     }
                                 )
