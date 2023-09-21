@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.enz.ac.uclive.zba29.travelerstrace.component.SettingsDropdown
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -42,9 +43,6 @@ fun SettingsScreen(
 
     val distanceMetrics = arrayOf("km", "mi")
     val languages = arrayOf("English", "Pirate")
-
-    var metricExpanded by remember { mutableStateOf(false) }
-    var languageExpanded by remember { mutableStateOf(false) }
 
     val settings by remember { mutableStateOf(currentSettings) }
 
@@ -80,94 +78,24 @@ fun SettingsScreen(
                         }
                     )
                 }
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Distance Metric")
-                    ExposedDropdownMenuBox(
-                        modifier = Modifier,
-                        expanded = metricExpanded,
-                        onExpandedChange = {
-                            metricExpanded = !metricExpanded
-                        }
-                    ) {
-                        TextField(
-                            value = settings.metric,
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricExpanded) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .width(120.dp), //TODO change this
-                            shape = RoundedCornerShape(15.dp)
-                        )
-
-                        ExposedDropdownMenu(
-                            modifier = Modifier.exposedDropdownSize(),
-                            expanded = metricExpanded,
-                            onDismissRequest = { metricExpanded = false }
-                        ) {
-                            distanceMetrics.forEach { item ->
-                                DropdownMenuItem(
-                                    text = { Text(text = item) },
-                                    onClick = {
-                                        settings.metric = item
-                                        onSettingsChange(settings)
-                                        metricExpanded = false
-                                    }
-                                )
-                            }
-                        }
+                SettingsDropdown(
+                    title = "Distance Metric",
+                    choices = distanceMetrics,
+                    initialValue = settings.metric,
+                    onChange = { newMetric ->
+                        settings.metric = newMetric
+                        onSettingsChange(settings)
                     }
-                }
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Language")
-                    ExposedDropdownMenuBox(
-                        modifier = Modifier,
-                        expanded = languageExpanded,
-                        onExpandedChange = {
-                            languageExpanded = !languageExpanded
-                        }
-                    ) {
-                        TextField(
-                            value = settings.language,
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricExpanded) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .width(150.dp), //TODO change this
-                            shape = RoundedCornerShape(15.dp)
-                        )
-
-                        ExposedDropdownMenu(
-                            modifier = Modifier.exposedDropdownSize(),
-                            expanded = languageExpanded,
-                            onDismissRequest = { languageExpanded = false }
-                        ) {
-                            languages.forEach { item ->
-                                DropdownMenuItem(
-                                    text = { Text(text = item) },
-                                    onClick = {
-                                        settings.language = item
-                                        onSettingsChange(settings)
-                                        languageExpanded = false
-                                    }
-                                )
-                            }
-                        }
+                )
+                SettingsDropdown(
+                    title = "Language",
+                    choices = languages,
+                    initialValue = settings.language,
+                    onChange = { newLanguage ->
+                        settings.language = newLanguage
+                        onSettingsChange(settings)
                     }
-                }
+                )
             }
         }
     )
