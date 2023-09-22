@@ -1,7 +1,6 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -52,9 +51,11 @@ fun MainScreen(navController: NavController, journeyList: List<Journey>) {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {},
+            FloatingActionButton(
+                onClick = {navController.navigate(Screen.CameraScreen.route)},
 //                containerColor = Color.Green,
-                shape = CircleShape,) {
+                shape = CircleShape,
+            ) {
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
                     contentDescription = null,

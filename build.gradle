@@ -1,6 +1,8 @@
 buildscript {
     ext {
         compose_ui_version = '1.2.0'
+        camerax_version = "1.2.3"
+        accompanist_version = '0.32.0'
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
