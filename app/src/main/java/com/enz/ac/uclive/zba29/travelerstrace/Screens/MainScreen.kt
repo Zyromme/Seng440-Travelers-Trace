@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.enz.ac.uclive.zba29.travelerstrace.component.Drawer
 import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
+import com.enz.ac.uclive.zba29.travelerstrace.model.DrawerNavOption
+import com.enz.ac.uclive.zba29.travelerstrace.model.DrawerParams
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import kotlinx.coroutines.launch
 
@@ -34,10 +36,30 @@ import kotlinx.coroutines.launch
 fun MainScreen(navController: NavController, journeyList: List<Journey>) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-        Drawer ()
+        Drawer (
+            drawerState = drawerState,
+            menuItems = DrawerParams.drawerButtons,
+            defaultPick = DrawerNavOption.main_screen
+        ) { onUserPickedOption ->
+            // when user picks, the path - navigates to new one
+            when (onUserPickedOption) {
+                DrawerNavOption.main_screen -> {
+                    navController.navigate(onUserPickedOption.name)
+                }
+
+                DrawerNavOption.settings_screen -> {
+                    navController.navigate(onUserPickedOption.name)
+                }
+
+                DrawerNavOption.map_screen -> {
+                    navController.navigate(onUserPickedOption.name)
+                }
+            }
+        }
      }) {
         Scaffold(
             topBar = {
