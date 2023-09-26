@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
@@ -29,9 +30,11 @@ import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val requestPermissionLauncher =
@@ -56,7 +59,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     private val viewModel: MapViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +96,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
-                        MainScreen(navController = navController, FakeDatabase.journeyList)
+                        MainScreen(navController = navController, viewModel = mainViewModel)
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {
