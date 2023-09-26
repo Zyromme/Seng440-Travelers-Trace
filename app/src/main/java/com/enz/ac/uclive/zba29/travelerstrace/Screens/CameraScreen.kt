@@ -1,18 +1,23 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
+import android.content.Context
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.compose.foundation.border
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.sharp.Lens
+import androidx.compose.material.icons.sharp.Camera
+import androidx.compose.material.icons.sharp.Cameraswitch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,37 +25,66 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.enz.ac.uclive.zba29.travelerstrace.component.CameraView
-import java.io.File
-import java.util.concurrent.Executor
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-fun captureImage(imageCapture: ImageCapture, cameraExecutor: Executor) {
-    val file = File.createTempFile("img", ".jpg")
-    val outputFileOption = ImageCapture.OutputFileOptions.Builder(file).build()
-    imageCapture.takePicture(outputFileOption, cameraExecutor, object : ImageCapture.OnImageSavedCallback{
-        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-            val uri = outputFileResults.savedUri
-        }
-
-        override fun onError(exception: ImageCaptureException) {
-            TODO("Not yet implemented")
-        }
-
-    })
+private suspend fun Context.getCameraProvider(): ProcessCameraProvider = suspendCoroutine { continuation ->
+    ProcessCameraProvider.getInstance(this).also { cameraProvider ->
+        cameraProvider.addListener({
+            continuation.resume(cameraProvider.get())
+        }, ContextCompat.getMainExecutor(this))
+    }
 }
+
+private fun switchCamera(lensFacing: Int): Int {
+    return if (lensFacing == CameraSelector.LENS_FACING_BACK)
+        CameraSelector.LENS_FACING_FRONT
+    else
+        CameraSelector.LENS_FACING_BACK
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraScreen(navController: NavController, executor: Executor) {
-    val imageCapture = remember {
-        ImageCapture.Builder().build()
+fun CameraScreen(navController: NavController) {
+
+    var lensFacing by remember { mutableStateOf(CameraSelector.LENS_FACING_BACK) }
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val preview = Preview.Builder().build()
+    val previewView = remember { PreviewView(context) }
+    val imageCapture: ImageCapture = remember { ImageCapture.Builder().build() }
+    val cameraSelector = CameraSelector.Builder()
+        .requireLensFacing(lensFacing)
+        .build()
+
+    LaunchedEffect(lensFacing) {
+        val cameraProvider = context.getCameraProvider()
+        cameraProvider.unbindAll()
+        cameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraSelector,
+            preview,
+            imageCapture
+        )
+
+        preview.setSurfaceProvider(previewView.surfaceProvider)
     }
+
     Scaffold (
         topBar = {
             TopAppBar (
@@ -62,34 +96,52 @@ fun CameraScreen(navController: NavController, executor: Executor) {
                     }
                 }
             )
-        },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(it)
-            ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                    CameraView(imageCapture = imageCapture)
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(it)
+        ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.13f),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    IconButton(onClick = {}) {}
                     IconButton(
-                        modifier = Modifier.padding(bottom = 20.dp),
-                        onClick = {
-                            captureImage(imageCapture, executor)
-                            navController.navigate(Screen.MainScreen.route) },
+                        modifier = Modifier
+                            .fillMaxSize(0.8f),
+                        onClick = { navController.navigate(Screen.MainScreen.route) },
                         content = {
                             Icon(
-                                imageVector = Icons.Sharp.Lens,
+                                imageVector = Icons.Sharp.Camera,
                                 contentDescription = "Take picture",
                                 tint = Color.White,
                                 modifier = Modifier
-                                    .size(150.dp)
-                                    .padding(1.dp)
-                                    .border(1.dp, Color.White, CircleShape)
+                                    .fillMaxSize()
+                            )
+                        }
+                    )
+                    IconButton(
+                        modifier = Modifier
+                            .fillMaxSize(0.8f),
+                        onClick = { lensFacing = switchCamera(lensFacing) },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Sharp.Cameraswitch,
+                                contentDescription = "Take picture",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .fillMaxSize()
                             )
                         }
                     )
                 }
             }
         }
-        )
+    }
 }
