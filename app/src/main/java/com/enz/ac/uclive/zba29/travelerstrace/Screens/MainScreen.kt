@@ -52,7 +52,9 @@ fun MainScreen(navController: NavController, journeyList: List<Journey>) {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {},
+            FloatingActionButton(onClick = {
+                navController.navigate(Screen.MapScreen.route)
+            },
 //                containerColor = Color.Green,
                 shape = CircleShape,) {
                 Icon(
