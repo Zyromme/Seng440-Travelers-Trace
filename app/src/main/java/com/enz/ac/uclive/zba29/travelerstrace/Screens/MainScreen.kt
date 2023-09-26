@@ -1,7 +1,6 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -17,16 +16,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
-import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import androidx.compose.runtime.livedata.observeAsState
+import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, journeyList: List<Journey>) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel) {
+    val journeyList by viewModel.journeys.observeAsState(listOf())
     Scaffold(
         topBar = {
             TopAppBar (
@@ -53,7 +56,8 @@ fun MainScreen(navController: NavController, journeyList: List<Journey>) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                navController.navigate(Screen.MapScreen.route)
+//                navController.navigate(Screen.MapScreen.route)
+                                           viewModel.addJourney(FakeDatabase.journeyList[0])
             },
 //                containerColor = Color.Green,
                 shape = CircleShape,) {
