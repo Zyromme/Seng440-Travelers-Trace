@@ -52,7 +52,7 @@ fun MainScreen(navController: NavController, journeyList: List<Journey>) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {navController.navigate(Screen.CameraScreen.route)},
+                onClick = { },
 //                containerColor = Color.Green,
                 shape = CircleShape,
             ) {
