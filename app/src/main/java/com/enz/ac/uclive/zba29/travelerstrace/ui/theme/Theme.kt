@@ -1,6 +1,5 @@
 package com.enz.ac.uclive.zba29.travelerstrace.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -73,10 +72,10 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun TravelersTraceTheme(
-    darkTheme: Boolean,
+    darkTheme: Boolean?,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
+    val colors = if (darkTheme == true) {
         DarkColors
     } else {
         LightColors
