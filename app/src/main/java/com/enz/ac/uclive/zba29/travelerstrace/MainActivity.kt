@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,8 +33,17 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
 
 class MainActivity : ComponentActivity() {
+    private lateinit var outputDirectory: File
+    private lateinit var cameraExecutor: ExecutorService
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private val viewModel: MapViewModel by viewModels()
+
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -42,6 +53,28 @@ class MainActivity : ComponentActivity() {
                 viewModel.getDeviceLocation(fusedLocationProviderClient)
             }
         }
+
+    private val cameraRequestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {}
+
+    private fun requestCameraPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.i("kilo", "Permission previously granted")
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.CAMERA
+            ) -> Log.i("kilo", "Show camera permissions dialog")
+
+            else -> cameraRequestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
 
     private fun askPermissions() = when {
         ContextCompat.checkSelfPermission(
@@ -55,14 +88,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val viewModel: MapViewModel by viewModels()
+    // Create a subdirectory within external storage, if not available then use the in app storage
+    private fun getOutputDirectory(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
+        }
+
+        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+    }
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         askPermissions()
+        requestCameraPermission()
+        outputDirectory = getOutputDirectory()
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
 
         setContent {
             val scope = rememberCoroutineScope()
@@ -112,6 +155,14 @@ class MainActivity : ComponentActivity() {
                             entry ->
                         JourneyDetailScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController)
                     }
+                    composable(route = Screen.CameraScreen.route) {
+                        CameraScreen(
+                            navController = navController,
+                            outputDirectory = outputDirectory,
+                            cameraExecutor = cameraExecutor
+                        )
+                    }
+
                 }
             }
         }
