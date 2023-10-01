@@ -19,4 +19,9 @@ class MainViewModel @Inject constructor(private val journeyRepository: JourneyRe
         journeyRepository.insert(journey)
     }
 
+    fun deleteJourney(journey: Journey) = viewModelScope.launch {
+        journeyRepository.deleteJourney(journey)
+        //TODO delete all LatLong and image linked to the journey
+    }
+
 }
