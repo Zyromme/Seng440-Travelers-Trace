@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MapViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
+    private val onJourneyViewModel: OnJourneyViewModel by viewModels()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,6 +118,9 @@ class MainActivity : ComponentActivity() {
                     ) {
                             entry ->
                         JourneyDetailScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController)
+                    }
+                    composable(route = Screen.OnJourneyScreen.route) {
+                        OnJourneyScreen(navController = navController, onJourneyViewModel = onJourneyViewModel)
                     }
                 }
             }
