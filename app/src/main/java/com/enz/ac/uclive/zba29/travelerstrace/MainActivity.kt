@@ -26,7 +26,6 @@ import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
-import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
@@ -44,10 +43,6 @@ import java.util.concurrent.Executors
 class MainActivity : ComponentActivity() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val viewModel: MapViewModel by viewModels()
-    private val permissions = listOf(Manifest.permission.CAMERA, ACCESS_FINE_LOCATION)
-
 
     private val requestPermissionLauncher =
         registerForActivityResult(
