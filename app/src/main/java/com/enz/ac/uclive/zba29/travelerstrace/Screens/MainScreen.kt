@@ -28,9 +28,10 @@ import com.enz.ac.uclive.zba29.travelerstrace.component.Drawer
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
 import com.enz.ac.uclive.zba29.travelerstrace.model.DrawerParams
-import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.res.stringResource
+import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +54,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Traveler's Trace") },
+                title = { Text(text= stringResource(id = R.string.app_name)) },
                 navigationIcon = {
                     IconButton(onClick = {scope.launch {drawerState.open()}}) {
                         Icon(
