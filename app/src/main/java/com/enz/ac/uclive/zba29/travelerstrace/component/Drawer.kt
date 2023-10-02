@@ -11,7 +11,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -32,10 +32,11 @@ fun Drawer(
 ) {
     val scope = rememberCoroutineScope()
     var selectedItemIndex by rememberSaveable {
-         mutableStateOf(0)
+         mutableIntStateOf(0)
     }
 
     ModalDrawerSheet {
+        // Not sure what to place up here //
         Spacer(modifier = Modifier.height(12.dp))
             // generates on demand the required composables
             menuItems.forEachIndexed { index, drawerItem ->
