@@ -49,7 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
-import com.enz.ac.uclive.zba29.travelerstrace.CameraScreenViewModel
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executor

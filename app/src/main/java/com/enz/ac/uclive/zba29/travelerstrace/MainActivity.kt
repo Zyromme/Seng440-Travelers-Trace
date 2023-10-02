@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MapViewModel by viewModels()
+    private val permissions = listOf(Manifest.permission.CAMERA, ACCESS_FINE_LOCATION)
 
 
     private val requestPermissionLauncher =
