@@ -20,62 +20,69 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.enz.ac.uclive.zba29.travelerstrace.component.Drawer
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
 import com.enz.ac.uclive.zba29.travelerstrace.model.DrawerParams
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.livedata.observeAsState
+import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, journeyList: List<Journey>) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel) {
+    val journeyList by viewModel.journeys.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-        Drawer (
-            drawerState = drawerState,
-            menuItems = DrawerParams.drawerButtons,
-            navController = navController,
-        )
-     }) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Traveler's Trace") },
-                    navigationIcon = {
-                        IconButton(onClick = {scope.launch {drawerState.open()}}) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Localized description"
-                            )
+            Drawer (
+                drawerState = drawerState,
+                menuItems = DrawerParams.drawerButtons,
+                navController = navController,
+            )
+        }) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Traveler's Trace") },
+                navigationIcon = {
+                    IconButton(onClick = {scope.launch {drawerState.open()}}) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Localized description"
+                        )
 
-                        }
-                    }
-                )
-            },
-            content = {
-                LazyColumn(
-                    modifier = Modifier.padding(it)
-                ) {
-                    item(journeyList) {
-                        journeyList.forEach {
-                            JourneyCard(
-                                it
-                            )
-                        }
                     }
                 }
+            )
+        },
+        content = {
+            LazyColumn(
+                modifier = Modifier.padding(it)
+            ) {
+                item(journeyList) {
+                    journeyList.forEach {
+                        JourneyCard(
+                            it
+                        )
+                    }
+                }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+//                navController.navigate(Screen.MapScreen.route)
+                                           viewModel.addJourney(FakeDatabase.journeyList[0])
             },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {},
 //                containerColor = Color.Green,
                     shape = CircleShape,
                 ) {
