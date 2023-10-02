@@ -1,11 +1,16 @@
 package com.enz.ac.uclive.zba29.travelerstrace.model
 
-data class Journey(
-    val id: Int,
-    val name: String,
-    val date: String,
-    val latLong: List<List<Double>>, // This will probably change we will have to see
-    val totalDistance: Double,
-    val image: Int,
-    val type: String,
-)
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "journey")
+class Journey(
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
+    @ColumnInfo var name: String,
+    @ColumnInfo var date: String,
+    @ColumnInfo var totalDistance: Double,
+    @ColumnInfo var image: Int,
+    @ColumnInfo var type: String,
+    )
+
