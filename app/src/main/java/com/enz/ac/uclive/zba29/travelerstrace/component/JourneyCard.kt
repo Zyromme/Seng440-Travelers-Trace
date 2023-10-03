@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -89,10 +91,8 @@ fun JourneyCard(journey: Journey) {
 
                 Row(verticalAlignment = Alignment.Bottom) {
 
-                    val distance: Painter = painterResource(id = R.drawable.baseline_location_on_24)
-
                     Icon(
-                        painter = distance,
+                        imageVector = Icons.Sharp.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp, 16.dp),
                         tint = Color.Red

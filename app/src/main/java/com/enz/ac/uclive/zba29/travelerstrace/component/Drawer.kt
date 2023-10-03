@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.DirectionsWalk
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -54,9 +56,9 @@ fun Drawer(
             ) {
                 Spacer(modifier = Modifier.height(30.dp))
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_directions_walk_24),
-                    contentDescription = "",
-                    tint = Color.White
+                    imageVector = Icons.Sharp.DirectionsWalk,
+                    contentDescription = "Walking Icon",
+                    tint = Color.White,
                 )
                 Text(
                     text = stringResource(id = R.string.app_name,),
