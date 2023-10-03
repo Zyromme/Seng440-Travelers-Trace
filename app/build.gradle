@@ -100,4 +100,10 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.2"
     implementation "androidx.compose.runtime:runtime-livedata:1.5.1"
+
+    //Lottie Animation
+    implementation "com.airbnb.android:lottie-compose:6.1.0"
+
+    // Icons
+    implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
 }
