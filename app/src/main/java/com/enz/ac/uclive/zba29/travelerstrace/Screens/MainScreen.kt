@@ -32,7 +32,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
 import com.enz.ac.uclive.zba29.travelerstrace.R
-import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
+import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -40,6 +42,8 @@ import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 fun MainScreen(navController: NavController, viewModel: MainViewModel) {
     val journeyList by viewModel.journeys.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
+    val currentDate = LocalDate.now().format(dateFormatter)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -82,7 +86,17 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         floatingActionButton = {
             FloatingActionButton(onClick = {
 //                navController.navigate(Screen.MapScreen.route)
-                                           viewModel.addJourney(FakeDatabase.journeyList[0])
+                scope.launch {
+                    val id = viewModel.addJourney(
+                        Journey(
+                            title = "",
+                            date = currentDate,
+                            totalDistance = 0.0,
+                            image = R.drawable.walk1,
+                            type = ""
+                            ))
+                    navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
+                }
             },
 //                containerColor = Color.Green,
                     shape = CircleShape,
@@ -98,3 +112,4 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         )
     }
 }
+

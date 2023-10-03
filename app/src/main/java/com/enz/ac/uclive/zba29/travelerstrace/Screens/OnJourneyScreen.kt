@@ -2,6 +2,7 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,8 +40,9 @@ import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 
 
 @Composable
-fun OnJourneyScreen(navController: NavController, onJourneyViewModel: OnJourneyViewModel) {
+fun OnJourneyScreen(journeyId: String?, navController: NavController, onJourneyViewModel: OnJourneyViewModel) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_animation))
+    Log.e("", journeyId.toString())
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 

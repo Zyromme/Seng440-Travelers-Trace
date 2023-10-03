@@ -1,6 +1,7 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -41,7 +42,7 @@ fun MapScreen(
 
     val lastKnownPosition = LatLng(state.lastKnownLocation!!.latitude, state.lastKnownLocation.longitude)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(lastKnownPosition, 17f)
+        position = CameraPosition.fromLatLngZoom(lastKnownPosition, 20f)
     }
 
 
@@ -68,6 +69,7 @@ fun MapScreen(
                     val context = LocalContext.current
                     val scope = rememberCoroutineScope()
                     MapEffect(state.lastKnownLocation) { map ->
+                        Log.e("test", state.lastKnownLocation.toString())
                         map.setOnMapLoadedCallback {
                             scope.launch {
                                 cameraPositionState.animate(

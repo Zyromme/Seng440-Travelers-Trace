@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                viewModel.getDeviceLocation(fusedLocationProviderClient)
+                mapViewModel.getDeviceLocation(fusedLocationProviderClient)
             }
         }
 
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
             this,
             ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED -> {
-            viewModel.getDeviceLocation(fusedLocationProviderClient)
+            mapViewModel.getDeviceLocation(fusedLocationProviderClient)
         }
         else -> {
             requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
-    private val viewModel: MapViewModel by viewModels()
+    private val mapViewModel: MapViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
     private val onJourneyViewModel: OnJourneyViewModel by viewModels()
 
@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {
-                        MapScreen(navController = navController, state = viewModel.state.value)
+                        MapScreen(navController = navController, state = mapViewModel.state.value)
                     }
                     composable(route = Screen.SettingsScreen.route) {
                         SettingsScreen(navController = navController, currentSettings = settings!!, onSettingsChange = {newSettings -> updateSettings(newSettings)})
@@ -119,8 +119,16 @@ class MainActivity : ComponentActivity() {
                             entry ->
                         JourneyDetailScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController)
                     }
-                    composable(route = Screen.OnJourneyScreen.route) {
-                        OnJourneyScreen(navController = navController, onJourneyViewModel = onJourneyViewModel)
+                    composable(route = Screen.OnJourneyScreen.route + "/{journeyId}",
+                        arguments = listOf(
+                            navArgument("journeyId") {
+                                type = NavType.StringType
+                                nullable = false
+                            }
+                        )
+                    ) {
+                            entry ->
+                        OnJourneyScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController, onJourneyViewModel = onJourneyViewModel)
                     }
                 }
             }
