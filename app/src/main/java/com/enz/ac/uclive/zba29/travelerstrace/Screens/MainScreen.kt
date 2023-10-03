@@ -79,8 +79,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-//                navController.navigate(Screen.MapScreen.route)
-                                           viewModel.addJourney(FakeDatabase.journeyList[0])
+                //navController.navigate(Screen.CameraScreen.route)
+                viewModel.addJourney(FakeDatabase.journeyList[0])
             },
 //                containerColor = Color.Green,
                     shape = CircleShape,
