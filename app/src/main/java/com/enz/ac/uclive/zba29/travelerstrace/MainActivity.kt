@@ -1,22 +1,19 @@
 package com.enz.ac.uclive.zba29.travelerstrace
 
 import android.Manifest
-import android.Manifest.permission.ACCESS_FINE_LOCATION
-import androidx.activity.viewModels
-import androidx.activity.result.contract.ActivityResultContracts
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
@@ -44,53 +42,34 @@ class MainActivity : ComponentActivity() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                viewModel.getDeviceLocation(fusedLocationProviderClient)
-            }
-        }
-
-    private val cameraRequestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {}
-
-    private fun requestCameraPermission() {
-        when {
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                Log.i("kilo", "Permission previously granted")
-            }
-
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.CAMERA
-            ) -> Log.i("kilo", "Show camera permissions dialog")
-
-            else -> cameraRequestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-    }
-
-    private fun askPermissions() = when {
-        ContextCompat.checkSelfPermission(
-            this,
-            ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED -> {
+    private val multiplePermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {permissions ->
+        // Check if all permissions are granted
+        val allPermissionsGranted = permissions.all{it.value}
+        if (allPermissionsGranted) {
             viewModel.getDeviceLocation(fusedLocationProviderClient)
         }
-        else -> {
-            requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
-        }
     }
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private fun checkAndRequestPermissions() {
+        val permissionToRequest = arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
-    private val viewModel: MapViewModel by viewModels()
-    private val mainViewModel: MainViewModel by viewModels()
+        val permissionsNotGranted = ArrayList<String>()
+
+        for (permission in permissionToRequest) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNotGranted.add(permission)
+            }
+        }
+
+        if (permissionsNotGranted.isNotEmpty()) {
+            multiplePermissionsLauncher.launch(permissionsNotGranted.toTypedArray())
+        }
+    }
 
     // Create a subdirectory within external storage, if not available then use the in app storage
     private fun getOutputDirectory(): File {
@@ -101,12 +80,18 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private val viewModel: MapViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
+    private val cameraViewModel: CameraScreenViewModel by viewModels()
+
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        askPermissions()
-        requestCameraPermission()
+        checkAndRequestPermissions()
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -140,7 +125,8 @@ class MainActivity : ComponentActivity() {
                     composable(route = Screen.MainScreen.route) {
                         MainScreen(navController = navController, viewModel = mainViewModel)
                     }
-                    composable(route = Screen.MapScreen.route,
+                    composable(
+                        route = Screen.MapScreen.route,
                     ) {
                         MapScreen(navController = navController, state = viewModel.state.value)
                     }
@@ -163,10 +149,10 @@ class MainActivity : ComponentActivity() {
                         CameraScreen(
                             navController = navController,
                             outputDirectory = outputDirectory,
-                            cameraExecutor = cameraExecutor
+                            cameraExecutor = cameraExecutor,
+                            cameraViewModel = cameraViewModel
                         )
                     }
-
                 }
             }
         }

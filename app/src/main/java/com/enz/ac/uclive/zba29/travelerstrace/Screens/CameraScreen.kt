@@ -1,6 +1,7 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.content.Context
+import android.content.res.Configuration
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.util.Log
@@ -21,17 +22,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.sharp.Autorenew
 import androidx.compose.material.icons.sharp.Camera
-import androidx.compose.material.icons.sharp.Cameraswitch
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -39,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -46,7 +45,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
@@ -75,7 +73,7 @@ private fun takePhoto(
     imageCapture: ImageCapture,
     outputDirectory: File,
     cameraExecutor: Executor,
-    handleImageCapture: (File) -> Unit
+    handlePhotoCapture: (File) -> Unit
 ) {
 
     val photoFile = File(
@@ -88,17 +86,22 @@ private fun takePhoto(
     imageCapture.takePicture(outputOptions, cameraExecutor, object: ImageCapture.OnImageSavedCallback {
         override fun onError(exception: ImageCaptureException) {}
         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-            handleImageCapture(photoFile)
+            handlePhotoCapture(photoFile)
         }
     })
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraScreen(navController: NavController, outputDirectory: File, cameraExecutor: Executor) {
+fun CameraScreen(
+    navController: NavController,
+    outputDirectory: File,
+    cameraExecutor: Executor,
+    cameraViewModel: CameraScreenViewModel
+) {
 
-    val cameraViewModel = viewModel<CameraScreenViewModel>()
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val dialogMaxHeight: Float
 
     // Camera preview setup
     val context = LocalContext.current
@@ -136,66 +139,165 @@ fun CameraScreen(navController: NavController, outputDirectory: File, cameraExec
         preview.setSurfaceProvider(previewView.surfaceProvider)
     }
 
-    if (cameraViewModel.photoFile != null) {
-        ConfirmPhotoDialog(Uri.fromFile(cameraViewModel.photoFile).toString(), navController, ::deletePhotoCaptured)
+
+
+    if (isLandscape) {
+        dialogMaxHeight = 1.0f
+        LandscapeCameraScreen(
+            navController = navController,
+            outputDirectory = outputDirectory,
+            cameraExecutor = cameraExecutor,
+            previewView = previewView,
+            handlePhotoCapture = ::handlePhotoCapture,
+            imageCapture = imageCapture,
+            cameraViewModel = cameraViewModel
+        )
+    } else {
+        dialogMaxHeight = 0.8f
+        PortraitCameraScreen(
+            navController = navController,
+            outputDirectory = outputDirectory,
+            cameraExecutor = cameraExecutor,
+            previewView = previewView,
+            handlePhotoCapture = ::handlePhotoCapture,
+            imageCapture = imageCapture,
+            cameraViewModel = cameraViewModel
+        )
     }
 
-    Scaffold (
-        topBar = {
-            TopAppBar (
-                title = { Text("Settings") },
-                navigationIcon = {
-                    //TODO: Will have to change this to navigate back to on walk screen
-                    IconButton(onClick = {navController.navigate(Screen.MainScreen.route)}) {
-                        Icon(Icons.Default.ArrowBack, null)
-                    }
+    if (cameraViewModel.photoFile != null) {
+        ConfirmPhotoDialog(
+            Uri.fromFile(cameraViewModel.photoFile).toString(),
+            navController,
+            ::deletePhotoCaptured,
+            dialogMaxHeight
+        )
+    }
+}
+
+@Composable
+fun PortraitCameraScreen(
+    navController: NavController,
+    outputDirectory: File,
+    cameraExecutor: Executor,
+    previewView: PreviewView,
+    handlePhotoCapture: (File) -> Unit,
+    imageCapture: ImageCapture,
+    cameraViewModel: CameraScreenViewModel
+) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.13f),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                modifier = Modifier.weight(0.3f),
+                //TODO: change the onclick route to OnJourneyScreen
+                onClick = {navController.navigate(Screen.MainScreen.route)},
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Text(text = "Cancel", color = Color.White)
+            }
+            IconButton(
+                modifier = Modifier
+                    .weight(0.4f)
+                    .fillMaxSize(0.8f),
+                onClick = { takePhoto(imageCapture, outputDirectory, cameraExecutor, handlePhotoCapture) },
+                content = {
+                    Icon(
+                        imageVector = Icons.Sharp.Camera,
+                        contentDescription = "Take picture",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                }
+            )
+            IconButton(
+                modifier = Modifier.weight(0.3f),
+                onClick = { cameraViewModel.lensFacing = switchCamera(cameraViewModel.lensFacing) },
+                content = {
+                    Icon(
+                        imageVector = Icons.Sharp.Autorenew,
+                        contentDescription = "Take picture",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
                 }
             )
         }
-    ) {
+    }
+}
+
+
+@Composable
+fun LandscapeCameraScreen(
+    navController: NavController,
+    outputDirectory: File,
+    cameraExecutor: Executor,
+    previewView: PreviewView,
+    handlePhotoCapture: (File) -> Unit,
+    imageCapture: ImageCapture,
+    cameraViewModel: CameraScreenViewModel
+) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
+        AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(it)
+                .fillMaxWidth(0.13f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.13f),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    IconButton(onClick = {}) {}
-                    IconButton(
+            IconButton(
+                modifier = Modifier.weight(0.3f),
+                onClick = {
+                    cameraViewModel.lensFacing = switchCamera(cameraViewModel.lensFacing)
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Sharp.Autorenew,
+                        contentDescription = "Take picture",
+                        tint = Color.White,
                         modifier = Modifier
-                            .fillMaxSize(0.8f),
-                        onClick = { takePhoto(imageCapture, outputDirectory, cameraExecutor, ::handlePhotoCapture) },
-                        content = {
-                            Icon(
-                                imageVector = Icons.Sharp.Camera,
-                                contentDescription = "Take picture",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            )
-                        }
-                    )
-                    IconButton(
-                        modifier = Modifier
-                            .fillMaxSize(0.8f),
-                        onClick = { cameraViewModel.lensFacing = switchCamera(cameraViewModel.lensFacing) },
-                        content = {
-                            Icon(
-                                imageVector = Icons.Sharp.Cameraswitch,
-                                contentDescription = "Take picture",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            )
-                        }
+                            .fillMaxSize()
                     )
                 }
+            )
+            IconButton(
+                modifier = Modifier
+                    .weight(0.4f)
+                    .fillMaxSize(0.8f),
+                onClick = {
+                    takePhoto(
+                        imageCapture,
+                        outputDirectory,
+                        cameraExecutor,
+                        handlePhotoCapture
+                    )
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Sharp.Camera,
+                        contentDescription = "Take picture",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                }
+            )
+            Button(
+                modifier = Modifier.weight(0.3f),
+                //TODO: change the onclick route to OnJourneyScreen
+                onClick = { navController.navigate(Screen.MainScreen.route) },
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Text(text = "Cancel", color = Color.White)
             }
         }
     }
@@ -207,7 +309,8 @@ fun CameraScreen(navController: NavController, outputDirectory: File, cameraExec
 fun ConfirmPhotoDialog(
     photoUri: String,
     navController: NavController,
-    deletePhoto: () -> Unit
+    deletePhoto: () -> Unit,
+    maxHeight: Float
 ) {
     val painter = rememberImagePainter(data = photoUri)
     Dialog(
@@ -218,7 +321,7 @@ fun ConfirmPhotoDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.6f)
+                .fillMaxHeight(maxHeight)
                 .padding(20.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
