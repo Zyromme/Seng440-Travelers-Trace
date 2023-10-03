@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import androidx.navigation.NavController
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.Screen
@@ -57,7 +60,7 @@ fun JourneyCard(journey: Journey, navController: NavController) {
                 .padding(16.dp)
         ) {
 
-            val image: Painter = painterResource(id = journey.image)
+            val image = rememberImagePainter(data = journey.image)
             Image(
                 modifier = Modifier
                     .size(80.dp, 80.dp)
