@@ -16,4 +16,8 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
     suspend fun insert(journey: Journey) {
         journeyDao.insert(journey)
     }
+
+    suspend fun getJourneyById(journeyId: Long): Journey {
+        return journeyDao.getJourneyById(journeyId)
+    }
 }

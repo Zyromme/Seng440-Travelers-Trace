@@ -73,7 +73,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                 item(journeyList) {
                     journeyList.forEach {
                         JourneyCard(
-                            it
+                            it, navController
                         )
                     }
                 }
@@ -81,8 +81,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-//                navController.navigate(Screen.MapScreen.route)
-                                           viewModel.addJourney(FakeDatabase.journeyList[0])
+                navController.navigate(Screen.MapScreen.route)
+//                                           viewModel.addJourney(FakeDatabase.journeyList[0])
             },
 //                containerColor = Color.Green,
                     shape = CircleShape,

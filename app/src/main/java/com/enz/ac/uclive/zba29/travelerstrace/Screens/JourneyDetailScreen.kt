@@ -4,5 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun JourneyDetailScreen(journeyId: String?, navController: NavController) {
+fun JourneyDetailScreen(journeyId: Long?, navController: NavController) {
+
 }
