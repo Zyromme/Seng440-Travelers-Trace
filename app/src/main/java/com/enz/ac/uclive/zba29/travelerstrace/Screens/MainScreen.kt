@@ -27,7 +27,6 @@ import androidx.navigation.NavController
 import com.enz.ac.uclive.zba29.travelerstrace.component.Drawer
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
-import com.enz.ac.uclive.zba29.travelerstrace.model.DrawerParams
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
@@ -51,7 +50,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         drawerContent = {
             Drawer (
                 drawerState = drawerState,
-                menuItems = DrawerParams.drawerButtons,
                 navController = navController,
             )
         }) {

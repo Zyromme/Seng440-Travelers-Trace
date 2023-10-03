@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -35,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 
@@ -52,7 +55,7 @@ fun JourneyCard(journey: Journey) {
                 .padding(16.dp)
         ) {
 
-            val image: Painter = painterResource(id = journey.image)
+            val image = rememberImagePainter(data = journey.image)
             Image(
                 modifier = Modifier
                     .size(80.dp, 80.dp)
@@ -67,7 +70,7 @@ fun JourneyCard(journey: Journey) {
 
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text(
-                    text = journey.name,
+                    text = journey.title,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                     fontWeight = FontWeight.Bold,
                     style = typography.labelLarge
@@ -89,10 +92,8 @@ fun JourneyCard(journey: Journey) {
 
                 Row(verticalAlignment = Alignment.Bottom) {
 
-                    val distance: Painter = painterResource(id = R.drawable.baseline_location_on_24)
-
                     Icon(
-                        painter = distance,
+                        imageVector = Icons.Sharp.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp, 16.dp),
                         tint = Color.Red
