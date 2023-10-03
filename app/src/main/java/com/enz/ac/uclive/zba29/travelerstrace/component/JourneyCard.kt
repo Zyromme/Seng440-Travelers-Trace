@@ -70,7 +70,7 @@ fun JourneyCard(journey: Journey) {
 
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text(
-                    text = journey.name,
+                    text = journey.title,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                     fontWeight = FontWeight.Bold,
                     style = typography.labelLarge
