@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 
@@ -54,7 +55,7 @@ fun JourneyCard(journey: Journey) {
                 .padding(16.dp)
         ) {
 
-            val image: Painter = painterResource(id = journey.image)
+            val image = rememberImagePainter(data = journey.image)
             Image(
                 modifier = Modifier
                     .size(80.dp, 80.dp)
