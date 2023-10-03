@@ -1,31 +1,36 @@
 package com.enz.ac.uclive.zba29.travelerstrace.model
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.enz.ac.uclive.zba29.travelerstrace.R
+import com.enz.ac.uclive.zba29.travelerstrace.Screens.Screen
 
 
 data class AppDrawerItemInfo(
     val route : String,
     @StringRes val title: Int,
-    @DrawableRes val drawableId: Int,
+    val icon: ImageVector,
 )
 object DrawerParams {
     val drawerButtons = listOf(
         AppDrawerItemInfo(
-            "main_screen",
+            Screen.MainScreen.route,
             R.string.drawer_home,
-            R.drawable.baseline_home_24,
+            Icons.Default.Home,
         ),
         AppDrawerItemInfo(
-            "settings_screen",
+            Screen.SettingsScreen.route,
             R.string.drawer_settings,
-            R.drawable.baseline_settings_24,
+            Icons.Default.Settings,
         ),
         AppDrawerItemInfo(
-            "map_screen",
+            Screen.MapScreen.route,
             R.string.drawer_map,
-            R.drawable.baseline_map_24,
+            Icons.Default.Map,
         )
     )
 }
