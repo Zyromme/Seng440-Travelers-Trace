@@ -38,8 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.Screen
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
@@ -52,7 +52,7 @@ fun JourneyCard(journey: Journey, navController: NavController) {
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -75,7 +75,7 @@ fun JourneyCard(journey: Journey, navController: NavController) {
 
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text(
-                    text = journey.name,
+                    text = journey.title,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                     fontWeight = FontWeight.Bold,
                     style = typography.labelLarge
@@ -97,10 +97,8 @@ fun JourneyCard(journey: Journey, navController: NavController) {
 
                 Row(verticalAlignment = Alignment.Bottom) {
 
-                    val distance: Painter = painterResource(id = R.drawable.baseline_location_on_24)
-
                     Icon(
-                        painter = distance,
+                        imageVector = Icons.Sharp.LocationOn,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp, 16.dp),
                         tint = Color.Red

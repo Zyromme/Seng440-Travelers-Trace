@@ -47,8 +47,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         drawerContent = {
             Drawer (
                 drawerState = drawerState,
-                menuItems = DrawerParams.drawerButtons,
-                navController = navController,
+                navController = navController
             )
         }) {
     Scaffold(
