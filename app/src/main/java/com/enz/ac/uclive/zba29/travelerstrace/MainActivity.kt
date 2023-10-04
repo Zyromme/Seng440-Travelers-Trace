@@ -144,7 +144,11 @@ class MainActivity : ComponentActivity() {
                         )
                     ) {
                             entry ->
-                        JourneyDetailScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController)
+                        JourneyDetailScreen(
+                            journeyId = entry.arguments?.getString("journeyId"),
+                            navController = navController,
+                            mainViewModel = mainViewModel
+                        )
                     }
                     composable(route = Screen.OnJourneyScreen.route) {
                         OnJourneyScreen(navController = navController, onJourneyViewModel = onJourneyViewModel)
