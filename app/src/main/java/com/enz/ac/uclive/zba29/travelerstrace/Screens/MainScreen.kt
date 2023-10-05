@@ -27,7 +27,6 @@ import androidx.navigation.NavController
 import com.enz.ac.uclive.zba29.travelerstrace.component.Drawer
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
-import com.enz.ac.uclive.zba29.travelerstrace.model.DrawerParams
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
@@ -80,8 +79,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                navController.navigate(Screen.MapScreen.route)
-//                                           viewModel.addJourney(FakeDatabase.journeyList[0])
+                //navController.navigate(Screen.MapScreen.route)
+                viewModel.addJourney(FakeDatabase.journeyList[0])
             },
 //                containerColor = Color.Green,
                     shape = CircleShape,

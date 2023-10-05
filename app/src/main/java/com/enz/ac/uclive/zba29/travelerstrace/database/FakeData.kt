@@ -8,6 +8,16 @@ object FakeDatabase {
         Journey(
             0,
             "First Walk",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                "the occasional friendly nod from fellow walkers. This walk is not just " +
+                "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                "me, and find solace in the simplicity of the moment.",
             "19-09-2023",
 //            listOf( // This format will probably change
 //                listOf(172.64184656528369, -43.50617195463385),
@@ -26,6 +36,16 @@ object FakeDatabase {
         Journey(
             1,
             "Walk Around",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                "the occasional friendly nod from fellow walkers. This walk is not just " +
+                "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                "me, and find solace in the simplicity of the moment.",
             "18-09-2023",
 //            listOf(
 //                listOf(172.6403220835362, -43.53112141009692),
@@ -42,6 +62,16 @@ object FakeDatabase {
         Journey(
             2,
             "Time Around",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                    "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                    "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                    "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                    "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                    "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                    "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                    "the occasional friendly nod from fellow walkers. This walk is not just " +
+                    "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                    "me, and find solace in the simplicity of the moment.",
             "18-09-2023",
 //            listOf(
 //                listOf(172.6403220835362, -43.53112141009692),
@@ -58,6 +88,16 @@ object FakeDatabase {
         Journey(
             3,
             "Morning Hike",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                    "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                    "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                    "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                    "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                    "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                    "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                    "the occasional friendly nod from fellow walkers. This walk is not just " +
+                    "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                    "me, and find solace in the simplicity of the moment.",
             "20-09-2023",
 //            listOf(
 //                listOf(172.61013459876543, -43.52786542231011),
@@ -74,6 +114,16 @@ object FakeDatabase {
         Journey(
             4,
             "City Cycling",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                    "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                    "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                    "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                    "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                    "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                    "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                    "the occasional friendly nod from fellow walkers. This walk is not just " +
+                    "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                    "me, and find solace in the simplicity of the moment.",
             "21-09-2023",
 //            listOf(
 //                listOf(172.61430927653456, -43.533214596043),
@@ -91,6 +141,16 @@ object FakeDatabase {
         Journey(
             5,
             "Evening Stroll",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                    "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                    "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                    "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                    "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                    "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                    "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                    "the occasional friendly nod from fellow walkers. This walk is not just " +
+                    "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                    "me, and find solace in the simplicity of the moment.",
             "22-09-2023",
 //            listOf(
 //                listOf(172.62133567087234, -43.5390214568902),
@@ -107,6 +167,16 @@ object FakeDatabase {
         Journey(
             6,
             "Mountain Trek",
+            "Taking a leisurely stroll through the serene, sun-dappled park is a " +
+                    "simple pleasure that never fails to rejuvenate the soul. As I lace up my " +
+                    "comfortable walking shoes and step out the door, I'm greeted by the crisp, " +
+                    "fresh air and the gentle rustling of leaves in the breeze. Each step I take " +
+                    "brings me closer to nature's embrace, and the rhythmic pattern of my footsteps " +
+                    "soon becomes a meditative cadence. I notice the vibrant colors of the flowers " +
+                    "in full bloom, the cheerful chatter of birds perched in the trees, and " +
+                    "the occasional friendly nod from fellow walkers. This walk is not just " +
+                    "about exercise; it's a chance to clear my mind, appreciate the beauty around " +
+                    "me, and find solace in the simplicity of the moment.",
             "23-09-2023",
 //            listOf(
 //                listOf(172.6123456789012, -43.52987654321098),
