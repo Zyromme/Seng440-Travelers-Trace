@@ -1,6 +1,7 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -33,16 +34,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JourneyDetailScreen(journeyId: String?, navController: NavController, journeyDetailViewModel: JourneyDetailViewModel) {
+fun JourneyDetailScreen(
+    journeyId: String?,
+    navController: NavController,
+    journeyDetailViewModel: JourneyDetailViewModel,
+    sharePhotoIntent: (File) -> Unit
+) {
     journeyId?.let { journeyDetailViewModel.getJourneyById(it.toLong()) }
     val journey = journeyDetailViewModel.currentJourney
     val journeyImagePainter = rememberImagePainter(data = journey?.image)
+
 
     if (journey == null) {
         navController.navigate(Screen.MainScreen.route)
@@ -98,7 +107,7 @@ fun JourneyDetailScreen(journeyId: String?, navController: NavController, journe
                                         )
                                     }
                                     IconButton(
-                                        onClick = { /*TODO: Dialog to social media intents*/},
+                                        onClick = { /*TODO: Call the share photo intent*/ },
                                         content = {
                                             Icon(
                                                 imageVector = Icons.Sharp.Share,

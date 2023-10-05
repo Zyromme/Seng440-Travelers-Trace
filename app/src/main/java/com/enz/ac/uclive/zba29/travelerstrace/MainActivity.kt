@@ -2,7 +2,9 @@ package com.enz.ac.uclive.zba29.travelerstrace
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -82,6 +84,20 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+    private fun sharePhotoIntent(photo: File) {
+        val filePath: String = photo.path
+        val bitmap = BitmapFactory.decodeFile(filePath)
+
+        val intent = Intent(Intent.ACTION_SEND).apply{
+            type = "image/*"
+            putExtra(Intent.EXTRA_STREAM, bitmap)
+        }
+
+        if(intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        }
+    }
+
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -148,7 +164,8 @@ class MainActivity : ComponentActivity() {
                         JourneyDetailScreen(
                             journeyId = entry.arguments?.getString("journeyId"),
                             navController = navController,
-                            journeyDetailViewModel = journeyDetailViewModel
+                            journeyDetailViewModel = journeyDetailViewModel,
+                            sharePhotoIntent = ::sharePhotoIntent
                         )
                     }
                     composable(route = Screen.OnJourneyScreen.route) {
