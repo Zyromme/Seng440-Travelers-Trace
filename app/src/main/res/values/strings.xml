@@ -5,4 +5,6 @@
     <string name="drawer_map">Map</string>
     <string name="slogan">Experience the world, one journey at a time.</string>
     <string name="date_pattern">dd-MM-yyyy</string>
+    <string name="channel_id">travelers_trace_channel</string>
+    <string name="notification_title">Tracing Run</string>
 </resources>

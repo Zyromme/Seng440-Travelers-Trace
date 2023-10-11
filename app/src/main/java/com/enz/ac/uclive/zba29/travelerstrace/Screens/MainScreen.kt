@@ -40,7 +40,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: () -> Unit) {
     val journeyList by viewModel.journeys.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
@@ -88,17 +88,22 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-//                navController.navigate(Screen.MapScreen.route)
                 scope.launch {
-                    val id = viewModel.addJourney(
-                        Journey(
-                            title = "",
-                            date = currentDate,
-                            totalDistance = 0.0,
-                            image = R.drawable.walk1,
-                            type = ""
+                    if (viewModel.journeyId == null) {
+                        val id = viewModel.addJourney(
+                            Journey(
+                                title = "",
+                                date = currentDate,
+                                totalDistance = 0.0,
+                                image = R.drawable.walk1,
+                                type = ""
                             ))
-                    navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
+                        viewModel.journeyId = id.toString()
+                        navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
+                        onStart()
+                    } else {
+                        navController.navigate(Screen.OnJourneyScreen.withArgs(viewModel.journeyId!!))
+                    }
                 }
             },
 //                containerColor = Color.Green,

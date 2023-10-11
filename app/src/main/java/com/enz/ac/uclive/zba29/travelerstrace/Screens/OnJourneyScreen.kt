@@ -22,12 +22,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.airbnb.lottie.LottieComposition
@@ -37,25 +39,49 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
+import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 
 @Composable
-fun OnJourneyScreen(journeyId: String?, navController: NavController, onJourneyViewModel: OnJourneyViewModel) {
+fun OnJourneyScreen(journeyId: String?,
+                    navController: NavController,
+                    onJourneyViewModel: OnJourneyViewModel,
+                    onStop: () -> Unit) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_animation))
-    Log.e("", journeyId.toString())
-
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    Log.e("", journeyId.toString())
+    val settingsStore = StoreSettings.getInstance(LocalContext.current)
+    var requestInterval = 0L
+
+    LaunchedEffect(Unit){
+        when(settingsStore.getSettings().first().trackingInterval) {
+            "3s" -> requestInterval = 3000L
+            "5s" -> requestInterval = 5000L
+            "10s" -> requestInterval = 10000L
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while(true) {
+            Log.e("Testing time", "new time" + journeyId)
+            delay(requestInterval)
+        }
+    }
 
     if (isLandscape) {
         LandScapeOnJourneyScreen(
             navController = navController,
             composition = composition,
-            onJourneyViewModel = onJourneyViewModel)
+            onJourneyViewModel = onJourneyViewModel,
+            onStop = onStop)
     } else {
         PortraitOnJourneyScreen(
             navController = navController,
             composition = composition,
-            onJourneyViewModel = onJourneyViewModel)
+            onJourneyViewModel = onJourneyViewModel,
+            onStop = onStop)
     }
 }
 
@@ -64,7 +90,8 @@ fun OnJourneyScreen(journeyId: String?, navController: NavController, onJourneyV
 fun PortraitOnJourneyScreen(
     navController: NavController,
     composition: LottieComposition?,
-    onJourneyViewModel: OnJourneyViewModel
+    onJourneyViewModel: OnJourneyViewModel,
+    onStop: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -134,7 +161,10 @@ fun PortraitOnJourneyScreen(
                     }
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { /*TODO: Route to Main Screen and stop collecting (long, lat) user info*/ },
+                        onClick = {
+                            onStop()
+                            /*TODO: Change route to the journey detail screen*/
+                            navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
                         Text(text = "End Journey")
@@ -150,7 +180,8 @@ fun PortraitOnJourneyScreen(
 fun LandScapeOnJourneyScreen(
     navController: NavController,
     composition: LottieComposition?,
-    onJourneyViewModel: OnJourneyViewModel
+    onJourneyViewModel: OnJourneyViewModel,
+    onStop: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -229,7 +260,10 @@ fun LandScapeOnJourneyScreen(
                     }
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { /*TODO: Route to Main Screen and stop collecting (long, lat) user info*/ },
+                        onClick = {
+                            onStop()
+                            /*TODO: Change route to the journey detail screen*/
+                            navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
                         Text(text = "End Journey")

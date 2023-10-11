@@ -2,8 +2,10 @@ package com.enz.ac.uclive.zba29.travelerstrace
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +29,7 @@ import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
+import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -50,7 +53,8 @@ class MainActivity : ComponentActivity() {
     private fun checkAndRequestPermissions() {
         val permissionToRequest = arrayOf(
             Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
         )
 
         val permissionsNotGranted = ArrayList<String>()
@@ -93,6 +97,35 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
+            val navController = rememberNavController()
+
+            fun onStartTracking() {
+                Intent(applicationContext, TrackingService::class.java).also {
+                    it.action = TrackingService.Actions.START.toString()
+                    startService(it)
+                }
+            }
+
+            fun onStopTracking() {
+                mainViewModel.journeyId = null
+                Intent(applicationContext, TrackingService::class.java).also {
+                    it.action = TrackingService.Actions.STOP.toString()
+                    startService(it)
+                }
+            }
+
+            fun navigateToOnJourneyScreenIfNeeded(intent: Intent?) {
+                if(intent?.action == TrackingService.Actions.SHOW_TRACKING.toString()) {
+                    Log.e("is it getting here", "dlkfja;lksjdf;lkajsd;lkja;lskfj")
+                    mainViewModel.journeyId?.let {
+                        Log.e("Current journey Id", it)
+                        navController.navigate(Screen.OnJourneyScreen.withArgs(it))
+                    }
+
+                }
+            }
+            navigateToOnJourneyScreenIfNeeded(intent)
+
             val scope = rememberCoroutineScope()
             val settingsStore = StoreSettings.getInstance(LocalContext.current)
             var isDark by remember { mutableStateOf(false) }
@@ -115,11 +148,9 @@ class MainActivity : ComponentActivity() {
             TravelersTraceTheme(
                 darkTheme = isDark
             ) {
-
-                val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
-                        MainScreen(navController = navController, viewModel = mainViewModel)
+                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { onStartTracking() })
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {
@@ -149,7 +180,7 @@ class MainActivity : ComponentActivity() {
                         )
                     ) {
                             entry ->
-                        OnJourneyScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController, onJourneyViewModel = onJourneyViewModel)
+                        OnJourneyScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController, onJourneyViewModel = onJourneyViewModel, onStop = { onStopTracking() })
                     }
                     composable(route = Screen.CameraScreen.route) {
                         CameraScreen(
