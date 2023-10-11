@@ -25,7 +25,6 @@ import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
-import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
@@ -46,13 +45,7 @@ class MainActivity : ComponentActivity() {
 
     private val multiplePermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) {permissions ->
-        // Check if all permissions are granted
-        val allPermissionsGranted = permissions.all{it.value}
-        if (allPermissionsGranted) {
-            mapViewModel.getDeviceLocation(fusedLocationProviderClient)
-        }
-    }
+    ) { }
 
     private fun checkAndRequestPermissions() {
         val permissionToRequest = arrayOf(
@@ -104,7 +97,7 @@ class MainActivity : ComponentActivity() {
             val settingsStore = StoreSettings.getInstance(LocalContext.current)
             var isDark by remember { mutableStateOf(false) }
             var settings by remember {
-                mutableStateOf<Settings?>(Settings(isDark = true, metric = "km", language = "English"))
+                mutableStateOf<Settings?>(Settings(isDark = true, metric = "km", language = "English", trackingInterval = "5s"))
             }
 
             scope.launch {
@@ -130,7 +123,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {
-                        MapScreen(navController = navController, state = mapViewModel.state.value)
+                        MapScreen(navController = navController, viewModel = mapViewModel, fusedLocationProviderClient = fusedLocationProviderClient)
                     }
                     composable(route = Screen.SettingsScreen.route) {
                         SettingsScreen(navController = navController, currentSettings = settings!!, onSettingsChange = {newSettings -> updateSettings(newSettings)})

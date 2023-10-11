@@ -1,6 +1,7 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +31,7 @@ import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import java.time.LocalDate
@@ -78,6 +80,9 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                             it
                         )
                     }
+                }
+                item() {
+                    Spacer(modifier = Modifier.padding(35.dp))
                 }
             }
         },
