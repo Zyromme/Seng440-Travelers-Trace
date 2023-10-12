@@ -75,13 +75,17 @@ fun OnJourneyScreen(journeyId: String?,
             navController = navController,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
-            onStop = onStop)
+            onStop = onStop,
+            journeyId = journeyId!!
+        )
     } else {
         PortraitOnJourneyScreen(
             navController = navController,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
-            onStop = onStop)
+            onStop = onStop,
+            journeyId = journeyId!!
+            )
     }
 }
 
@@ -91,7 +95,8 @@ fun PortraitOnJourneyScreen(
     navController: NavController,
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
-    onStop: () -> Unit
+    onStop: () -> Unit,
+    journeyId: String
 ) {
     Scaffold(
         topBar = {
@@ -150,7 +155,7 @@ fun PortraitOnJourneyScreen(
                     )
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { /*TODO: Route to Camera Screen*/ },
+                        onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
                         Icon(
@@ -163,7 +168,6 @@ fun PortraitOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
-                            /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
@@ -181,7 +185,8 @@ fun LandScapeOnJourneyScreen(
     navController: NavController,
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
-    onStop: () -> Unit
+    onStop: () -> Unit,
+    journeyId: String
 ) {
     Scaffold(
         topBar = {
@@ -249,7 +254,7 @@ fun LandScapeOnJourneyScreen(
                 ) {
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { /*TODO: Route to Camera Screen*/ },
+                        onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
                         Icon(
@@ -262,7 +267,6 @@ fun LandScapeOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
-                            /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {

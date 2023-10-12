@@ -3,6 +3,7 @@ package com.enz.ac.uclive.zba29.travelerstrace.di
 import android.content.Context
 import androidx.room.Room
 import com.enz.ac.uclive.zba29.travelerstrace.dao.JourneyDao
+import com.enz.ac.uclive.zba29.travelerstrace.dao.PhotoDao
 import com.enz.ac.uclive.zba29.travelerstrace.dao.LatLongDao
 import com.enz.ac.uclive.zba29.travelerstrace.database.JourneyDatabase
 import dagger.Module
@@ -27,6 +28,11 @@ object RoomModule {
     @Provides
     fun provideJourneyDao(journeyDatabase: JourneyDatabase): JourneyDao{
         return journeyDatabase.journeyDao()
+    }
+
+    @Provides
+    fun providePhotoDao(journeyDatabase: JourneyDatabase): PhotoDao {
+        return journeyDatabase.photoDao()
     }
     @Provides
     fun provideLatLongDao(journeyDatabase: JourneyDatabase): LatLongDao{

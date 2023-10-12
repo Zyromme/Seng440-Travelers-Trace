@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +49,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
+import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executor
@@ -97,9 +100,10 @@ fun CameraScreen(
     navController: NavController,
     outputDirectory: File,
     cameraExecutor: Executor,
-    cameraViewModel: CameraScreenViewModel
+    cameraViewModel: CameraScreenViewModel,
+    journeyId: String?
 ) {
-
+    val scope = rememberCoroutineScope()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val dialogMaxHeight: Float
 
@@ -123,6 +127,17 @@ fun CameraScreen(
             cameraViewModel.photoFile?.delete()
             Log.i("TravelersTrace", "photo deleted")
             cameraViewModel.photoFile = null
+        }
+    }
+
+    fun savePhotoToDB() {
+        if (cameraViewModel.photoFile != null) {
+            if (journeyId != null) {
+                val latLong = TrackingService.pathPoints.value!!.last()
+                scope.launch {
+                    cameraViewModel.savePhotoToRepo(journeyId, latLong)
+                }
+            }
         }
     }
 
@@ -170,7 +185,9 @@ fun CameraScreen(
             Uri.fromFile(cameraViewModel.photoFile).toString(),
             navController,
             ::deletePhotoCaptured,
-            dialogMaxHeight
+            dialogMaxHeight,
+            ::savePhotoToDB,
+            journeyId
         )
     }
 }
@@ -310,7 +327,9 @@ fun ConfirmPhotoDialog(
     photoUri: String,
     navController: NavController,
     deletePhoto: () -> Unit,
-    maxHeight: Float
+    maxHeight: Float,
+    savePhotoToDB: () -> Unit,
+    journeyId: String?
 ) {
     val painter = rememberImagePainter(data = photoUri)
     Dialog(
@@ -350,7 +369,9 @@ fun ConfirmPhotoDialog(
                         Text("Retake")
                     }
                     Button(
-                        onClick = {/*TODO: Route back to the OnJourneyScreen*/},
+                        onClick = {
+                            savePhotoToDB()
+                            navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId!!)) },
                         modifier = Modifier.padding(8.dp),
                     ) {
                         Text("Save")
