@@ -99,9 +99,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            fun onStartTracking() {
+            fun onStartTracking(journeyId: Long) {
+                mainViewModel.journeyId = journeyId.toString()
                 Intent(applicationContext, TrackingService::class.java).also {
                     it.action = TrackingService.Actions.START.toString()
+                    it.putExtra("JOURNEY_ID", journeyId)
                     startService(it)
                 }
             }
@@ -114,17 +116,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            fun navigateToOnJourneyScreenIfNeeded(intent: Intent?) {
-                if(intent?.action == TrackingService.Actions.SHOW_TRACKING.toString()) {
-                    Log.e("is it getting here", "dlkfja;lksjdf;lkajsd;lkja;lskfj")
-                    mainViewModel.journeyId?.let {
-                        Log.e("Current journey Id", it)
-                        navController.navigate(Screen.OnJourneyScreen.withArgs(it))
-                    }
-
-                }
-            }
-            navigateToOnJourneyScreenIfNeeded(intent)
+//            fun navigateToOnJourneyScreenIfNeeded(intent: Intent?) {
+//                if(intent?.action == TrackingService.Actions.SHOW_TRACKING.toString()) {
+//                    val journeyId = TrackingService.currentJourney.value.toString()
+//                    Log.e("Current journey Id", journeyId)
+//                    navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId))
+//
+//                }
+//            }
+//            navigateToOnJourneyScreenIfNeeded(intent)
 
             val scope = rememberCoroutineScope()
             val settingsStore = StoreSettings.getInstance(LocalContext.current)
@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
-                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { onStartTracking() })
+                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { journeyId -> onStartTracking(journeyId) })
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {

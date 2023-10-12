@@ -42,7 +42,8 @@ fun MapScreen(
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
 
-    var lastKnownPosition = LatLng(0.0, 0.0)
+    var lastKnownPosition = if (state.lastKnownLocation!= null) LatLng(state.lastKnownLocation.latitude, state.lastKnownLocation.longitude) else LatLng(0.0, 0.0)
+
     LaunchedEffect(state) {
         if (state.lastKnownLocation == null) {
             viewModel.getDeviceLocation(fusedLocationProviderClient)

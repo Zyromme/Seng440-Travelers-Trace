@@ -34,13 +34,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: () -> Unit) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: (Long) -> Unit) {
     val journeyList by viewModel.journeys.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
@@ -98,9 +99,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                 image = R.drawable.walk1,
                                 type = ""
                             ))
-                        viewModel.journeyId = id.toString()
                         navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
-                        onStart()
+                        onStart(id)
                     } else {
                         navController.navigate(Screen.OnJourneyScreen.withArgs(viewModel.journeyId!!))
                     }

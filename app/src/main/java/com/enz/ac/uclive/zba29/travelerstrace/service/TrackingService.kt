@@ -1,31 +1,32 @@
 package com.enz.ac.uclive.zba29.travelerstrace.service
 
 import android.Manifest
-import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.app.Notification
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.enz.ac.uclive.zba29.travelerstrace.MainActivity
+import androidx.lifecycle.lifecycleScope
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.first
-import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.launch
+import java.util.Timer
+import java.util.TimerTask
 
 
 typealias Polyline = MutableList<LatLng>
@@ -34,14 +35,18 @@ class TrackingService: LifecycleService() {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
+    lateinit var notificationManager : NotificationManager
+
+    var counter: Int = 0
+
+    val stopwatchTimer = Timer()
 
     companion object {
-        val isTracking = MutableLiveData<Boolean>()
+        var isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
         val trackingInterval = MutableLiveData<Long>()
+        var currentJourney = MutableLiveData<Long>()
     }
-
-
 
     private fun postInitialValues() {
         isTracking.postValue(false)
@@ -128,36 +133,75 @@ class TrackingService: LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        getNotificationManager()
         when(intent?.action) {
-            Actions.START.toString() -> start()
-            Actions.STOP.toString() -> {
-                pathPoints
-                stopSelf()
-            }
+            Actions.START.toString() -> start(intent.getLongExtra("JOURNEY_ID", 0))
+            Actions.STOP.toString() -> stop()
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun start() {
-        val notification = NotificationCompat.Builder(this, R.string.channel_id.toString())
-            .setSmallIcon(R.mipmap.ic_launcher_travelers_trace_foreground)
-            .setContentTitle("Tracing Run")
-            .setContentText("Elapsed time: 00:00")
-            .setOngoing(true)
-//            .setContentIntent(getCurrentTravelIntent())
-            .build()
-        startForeground(1, notification)
+    private fun stop() {
+        isTracking.value = false
+        currentJourney.value = 0
+        stopwatchTimer.cancel()
+        stopSelf()
     }
 
-    private fun getCurrentTravelIntent() =
-        PendingIntent.getActivity(
-        this,
-        0,
-        Intent(this, MainActivity::class.java).also {
-            it.action = Actions.SHOW_TRACKING.toString()
-        },
-            FLAG_UPDATE_CURRENT or FLAG_MUTABLE
-    )
+    private fun start(journeyId: Long) {
+        currentJourney.value = journeyId
+        isTracking.value = true
+        startForeground(1, buildNotification())
+        counter = 0
+        stopwatchTimer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                counter++
+                updateNotification()
+            }
+        }, 0, 1000)
+    }
+
+    private fun getNotificationManager() {
+        notificationManager = ContextCompat.getSystemService(
+            this,
+            NotificationManager::class.java
+        ) as NotificationManager
+    }
+
+    private fun updateNotification() {
+        notificationManager.notify(
+            1,
+            buildNotification()
+        )
+    }
+
+    private fun buildNotification(): Notification {
+
+        val hours: Int = counter.div(60).div(60)
+        val minutes: Int = counter.div(60)
+        val seconds: Int = counter.rem(60)
+
+//        val intent = Intent(this, MainActivity::class.java)
+//        intent.action = Actions.SHOW_TRACKING.toString()
+//        intent.putExtra("JOURNEY_ID", currentJourney.value)
+//        val pIntent = PendingIntent.getActivity(this, 0, intent,
+//            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+
+        return NotificationCompat.Builder(this, R.string.channel_id.toString())
+            .setContentTitle("Tracing Run")
+            .setOngoing(true)
+            .setContentText(
+                "${"%02d".format(hours)}:${"%02d".format(minutes)}:${
+                    "%02d".format(
+                        seconds
+                    )
+                }"
+            )
+            .setSmallIcon(R.mipmap.ic_launcher_travelers_trace_foreground)
+            .setOnlyAlertOnce(true)
+//            .setContentIntent(pIntent)
+            .build()
+    }
 
     enum class Actions {
         START, STOP, SHOW_TRACKING
