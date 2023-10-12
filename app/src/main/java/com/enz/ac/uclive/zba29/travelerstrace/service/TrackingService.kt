@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -29,8 +30,8 @@ import java.util.Timer
 import java.util.TimerTask
 
 
-typealias Polyline = MutableList<LatLng>
-typealias Polylines = MutableList<Polyline>
+//typealias Polyline = MutableList<LatLng>
+typealias Polylines = MutableList<LatLng>
 class TrackingService: LifecycleService() {
 
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -83,10 +84,10 @@ class TrackingService: LifecycleService() {
                 }
 
             if (ActivityCompat.checkSelfPermission(
-                    this,
+                    applicationContext,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
+                    applicationContext,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
@@ -113,6 +114,7 @@ class TrackingService: LifecycleService() {
 
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
+            Log.e("asdfasdf","asdhlkjahsdlkjahslkdjhaklsdj")
             super.onLocationResult(result)
             result.locations.let { locations ->
                 for(location in locations) {
@@ -125,10 +127,7 @@ class TrackingService: LifecycleService() {
     private fun addPathPoint(location: Location?) {
         location?.let {
             val pos = LatLng(location.latitude, location.longitude)
-            pathPoints.value?.apply {
-                last().add(pos)
-                pathPoints.postValue(this)
-            }
+            pathPoints.value!!.add(pos)
         }
     }
 
@@ -149,8 +148,8 @@ class TrackingService: LifecycleService() {
     }
 
     private fun start(journeyId: Long) {
-        currentJourney.value = journeyId
-        isTracking.value = true
+        currentJourney.postValue(journeyId)
+        isTracking.postValue(true)
         startForeground(1, buildNotification())
         counter = 0
         stopwatchTimer.scheduleAtFixedRate(object : TimerTask() {
