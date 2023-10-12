@@ -75,13 +75,17 @@ fun OnJourneyScreen(journeyId: String?,
             navController = navController,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
-            onStop = onStop)
+            onStop = onStop,
+            journeyId = journeyId?.toLongOrNull() ?: 0,
+        )
     } else {
         PortraitOnJourneyScreen(
             navController = navController,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
-            onStop = onStop)
+            onStop = onStop,
+            journeyId = journeyId?.toLongOrNull() ?: 0,
+            )
     }
 }
 
@@ -91,8 +95,10 @@ fun PortraitOnJourneyScreen(
     navController: NavController,
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
-    onStop: () -> Unit
+    onStop: () -> Unit,
+    journeyId: Long
 ) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -163,6 +169,7 @@ fun PortraitOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
                             /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
@@ -181,7 +188,8 @@ fun LandScapeOnJourneyScreen(
     navController: NavController,
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
-    onStop: () -> Unit
+    onStop: () -> Unit,
+    journeyId: Long
 ) {
     Scaffold(
         topBar = {
@@ -262,6 +270,7 @@ fun LandScapeOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
                             /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)

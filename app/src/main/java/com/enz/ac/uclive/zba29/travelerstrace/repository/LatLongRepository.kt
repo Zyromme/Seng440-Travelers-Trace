@@ -7,9 +7,11 @@ import javax.inject.Inject
 
 
 class LatLongRepository @Inject constructor(private val latLongDao: LatLongDao) {
-    @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(latLong: LatLong) : Long {
         return latLongDao.insert(latLong)
+    }
+    suspend fun insertAll(latLong: List<LatLong>) {
+        latLongDao.insertAll(latLong)
     }
 }
