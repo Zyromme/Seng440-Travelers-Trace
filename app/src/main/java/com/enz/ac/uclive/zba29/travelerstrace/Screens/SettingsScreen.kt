@@ -38,6 +38,7 @@ fun SettingsScreen(
 
     val distanceMetrics = arrayOf("km", "mi")
     val languages = arrayOf("English", "Pirate")
+    val trackingInterval = arrayOf("3s", "5s", "10s")
 
     val settings by remember { mutableStateOf(currentSettings) }
 
@@ -88,6 +89,15 @@ fun SettingsScreen(
                     initialValue = settings.language,
                     onChange = { newLanguage ->
                         settings.language = newLanguage
+                        onSettingsChange(settings)
+                    }
+                )
+                SettingsDropdown(
+                    title = "Tracking Interval",
+                    choices = trackingInterval,
+                    initialValue = settings.trackingInterval,
+                    onChange = { newTrackingInterval ->
+                        settings.trackingInterval = newTrackingInterval
                         onSettingsChange(settings)
                     }
                 )

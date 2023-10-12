@@ -1,6 +1,7 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -30,15 +31,21 @@ import com.enz.ac.uclive.zba29.travelerstrace.component.JourneyCard
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.enz.ac.uclive.zba29.travelerstrace.R
-import com.enz.ac.uclive.zba29.travelerstrace.dat.FakeDatabase
+import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: (Long) -> Unit) {
     val journeyList by viewModel.journeys.observeAsState(listOf())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
+    val currentDate = LocalDate.now().format(dateFormatter)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -75,12 +82,29 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel) {
                         )
                     }
                 }
+                item() {
+                    Spacer(modifier = Modifier.padding(35.dp))
+                }
             }
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                //navController.navigate(Screen.CameraScreen.route)
-                viewModel.addJourney(FakeDatabase.journeyList[0])
+                scope.launch {
+                    if (viewModel.journeyId == null) {
+                        val id = viewModel.addJourney(
+                            Journey(
+                                title = "",
+                                date = currentDate,
+                                totalDistance = 0.0,
+                                image = R.drawable.walk1,
+                                type = ""
+                            ))
+                        navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
+                        onStart(id)
+                    } else {
+                        navController.navigate(Screen.OnJourneyScreen.withArgs(viewModel.journeyId!!))
+                    }
+                }
             },
 //                containerColor = Color.Green,
                     shape = CircleShape,
