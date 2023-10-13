@@ -63,6 +63,7 @@ fun OnJourneyScreen(journeyId: String?,
         if (onJourneyViewModel.journeyTitle != null) {
             if (journeyId != null) {
                 scope.launch {
+                    Log.e("", onJourneyViewModel.totalDistanceLiveData.toString())
                     onJourneyViewModel.updateJourney(journeyId.toLong())
                     onJourneyViewModel.journeyTitle = ""
                     onJourneyViewModel.description = ""
@@ -70,6 +71,7 @@ fun OnJourneyScreen(journeyId: String?,
             }
         }
     }
+
 
     LaunchedEffect(Unit){
         when(settingsStore.getSettings().first().trackingInterval) {
