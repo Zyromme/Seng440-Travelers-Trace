@@ -21,8 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.component.SettingsDropdown
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 
@@ -43,7 +45,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar (
-                title = { Text("Settings") },
+                title = {Text(text = stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = {navController.navigate(Screen.MainScreen.route)}) {
                         Icon(Icons.Default.ArrowBack, null)

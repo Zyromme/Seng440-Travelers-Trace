@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Traveler\'s Trace</string>
     <string name="drawer_home">Home</string>
-    <string name="drawer_settings">Settings</string>
+    <string name="settings">Settings</string>
     <string name="drawer_map">Map</string>
     <string name="slogan">Experience the world, one journey at a time.</string>
     <string name="date_pattern">dd-MM-yyyy</string>

@@ -6,13 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.enz.ac.uclive.zba29.travelerstrace.dao.JourneyDao
 import com.enz.ac.uclive.zba29.travelerstrace.dao.LatLongDao
+import com.enz.ac.uclive.zba29.travelerstrace.dao.PhotoDao
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import com.enz.ac.uclive.zba29.travelerstrace.model.LatLong
+import com.enz.ac.uclive.zba29.travelerstrace.model.Photo
 
-@Database(entities = [Journey::class, LatLong::class], version = 1)
+@Database(entities = [Journey::class, LatLong::class, Photo::class], version = 1)
 abstract class JourneyDatabase : RoomDatabase() {
     abstract fun journeyDao(): JourneyDao
     abstract fun latLongDao(): LatLongDao
+    abstract fun photoDao(): PhotoDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
