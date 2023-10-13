@@ -17,10 +17,14 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val journeyRepository: JourneyRepository) : ViewModel() {
     var journeyId by mutableStateOf<String?>(null)
-    val journeys: LiveData<List<Journey>> = journeyRepository.journeys.asLiveData()
+    var journeys: LiveData<List<Journey>> = journeyRepository.journeys.asLiveData()
     val numJourneys: LiveData<Int> = journeyRepository.numJourneys.asLiveData()
     suspend fun addJourney(journey: Journey): Long {
         return journeyRepository.insert(journey)
+    }
+
+    fun reloadJourneyList() {
+        journeys = journeyRepository.journeys.asLiveData()
     }
 
     val state: MutableState<MapState> = mutableStateOf(

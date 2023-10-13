@@ -55,16 +55,16 @@ fun JourneyCard(journey: Journey) {
                 .padding(16.dp)
         ) {
 
-            val image = rememberImagePainter(data = journey.image)
-            Image(
-                modifier = Modifier
-                    .size(80.dp, 80.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                painter = image,
-                alignment = Alignment.CenterStart,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
+//            val image = rememberImagePainter(data = journey.image)
+//            Image(
+//                modifier = Modifier
+//                    .size(80.dp, 80.dp)
+//                    .clip(RoundedCornerShape(16.dp)),
+//                painter = image,
+//                alignment = Alignment.CenterStart,
+//                contentDescription = "",
+//                contentScale = ContentScale.Crop
+//            )
 
             Spacer(modifier = Modifier.width(16.dp))
 

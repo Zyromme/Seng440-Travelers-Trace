@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import com.enz.ac.uclive.zba29.travelerstrace.model.LatLong
 import com.enz.ac.uclive.zba29.travelerstrace.repository.JourneyRepository
 import com.enz.ac.uclive.zba29.travelerstrace.repository.LatLongRepository
@@ -20,8 +21,18 @@ class OnJourneyViewModel @Inject constructor(
     private val journeyRepository: JourneyRepository,
     private val latLongRepository: LatLongRepository
 ) : ViewModel() {
-    var journeyTitle by mutableStateOf(TextFieldValue(""))
-    var description by mutableStateOf(TextFieldValue(""))
+    var journeyTitle by mutableStateOf("")
+    var description by mutableStateOf("")
+
+    suspend fun updateJourney(journeyId: Long) {
+        val journeyTitle = journeyTitle
+        val description = description
+        journeyRepository.updateJourney(
+                journeyId,
+                journeyTitle.toString(),
+                description.toString()
+            )
+    }
 
     fun saveAndMapLatLongToList(journeyId: Long) {
         val pathPoints = TrackingService.pathPoints.value
@@ -36,11 +47,8 @@ class OnJourneyViewModel @Inject constructor(
             addAllLatLong(latLongList)
         }
     }
+
     fun addAllLatLong(latLongs: List<LatLong>) = viewModelScope.launch {
         latLongRepository.insertAll(latLongs)
     }
-
-    /**
-     * TODO: Create a function that collects the users long and lat and store the data along with the journey id.
-     */
 }
