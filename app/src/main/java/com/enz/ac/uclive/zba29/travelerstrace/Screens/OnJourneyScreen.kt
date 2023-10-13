@@ -24,12 +24,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.airbnb.lottie.LottieComposition
@@ -42,6 +44,7 @@ import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -54,6 +57,19 @@ fun OnJourneyScreen(journeyId: String?,
     Log.e("", journeyId.toString())
     val settingsStore = StoreSettings.getInstance(LocalContext.current)
     var requestInterval = 0L
+    val scope = rememberCoroutineScope()
+
+    fun saveJourneyDetails() {
+        if (onJourneyViewModel.journeyTitle != null) {
+            if (journeyId != null) {
+                scope.launch {
+                    onJourneyViewModel.updateJourney(journeyId.toLong())
+                    onJourneyViewModel.journeyTitle = ""
+                    onJourneyViewModel.description = ""
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit){
         when(settingsStore.getSettings().first().trackingInterval) {
@@ -76,15 +92,17 @@ fun OnJourneyScreen(journeyId: String?,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
             onStop = onStop,
-            journeyId = journeyId!!
-        )
+            journeyId = journeyId!!,
+            saveJourneyDetails = { saveJourneyDetails() },
+            )
     } else {
         PortraitOnJourneyScreen(
             navController = navController,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
             onStop = onStop,
-            journeyId = journeyId!!
+            journeyId = journeyId!!,
+            saveJourneyDetails = { saveJourneyDetails() },
             )
     }
 }
@@ -96,13 +114,14 @@ fun PortraitOnJourneyScreen(
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
     onStop: () -> Unit,
-    journeyId: String
-) {
+    journeyId: String,
+    saveJourneyDetails: () -> Unit,
+    ) {
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Traveler's Trace") },
+                title = { Text(stringResource(id = R.string.app_name)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate(Screen.MainScreen.route) }) {
                         Icon(Icons.Default.ArrowBack, null)
@@ -141,7 +160,7 @@ fun PortraitOnJourneyScreen(
                         onValueChange = { newTitle ->
                             onJourneyViewModel.journeyTitle = newTitle
                         },
-                        label = { Text(text = "Journey Title") }
+                        label = { Text(stringResource(id = R.string.on_journey_title)) }
                     )
                     OutlinedTextField(
                         modifier = Modifier
@@ -152,7 +171,7 @@ fun PortraitOnJourneyScreen(
                         },
                         minLines = 5,
                         maxLines = 5,
-                        label = { Text(text = "Tell me...") }
+                        label = { Text(stringResource(id = R.string.on_journey_description)) }
                     )
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
@@ -169,12 +188,13 @@ fun PortraitOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
+                            saveJourneyDetails()
                             onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
-                        Text(text = "End Journey")
+                        Text(stringResource(id = R.string.on_journey_end))
                     }
                 }
             }
@@ -189,12 +209,13 @@ fun LandScapeOnJourneyScreen(
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
     onStop: () -> Unit,
-    journeyId: String
-) {
+    journeyId: String,
+    saveJourneyDetails: () -> Unit,
+    ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Traveler's Trace") },
+                title = { Text(stringResource(id = R.string.app_name)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate(Screen.MainScreen.route) }) {
                         Icon(Icons.Default.ArrowBack, null)
@@ -233,7 +254,7 @@ fun LandScapeOnJourneyScreen(
                         onValueChange = { newTitle ->
                             onJourneyViewModel.journeyTitle = newTitle
                         },
-                        label = { Text(text = "Journey Title") }
+                        label = { Text(stringResource(id = R.string.on_journey_title)) }
                     )
                     OutlinedTextField(
                         modifier = Modifier
@@ -244,7 +265,7 @@ fun LandScapeOnJourneyScreen(
                         },
                         minLines = 5,
                         maxLines = 5,
-                        label = { Text(text = "Tell me...") }
+                        label = { Text(stringResource(id = R.string.on_journey_description)) }
                     )
                 }
 
@@ -271,10 +292,11 @@ fun LandScapeOnJourneyScreen(
                         onClick = {
                             onStop()
                             onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
+                            saveJourneyDetails()
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
-                        Text(text = "End Journey")
+                        Text(stringResource(id = R.string.on_journey_end))
                     }
                 }
             }

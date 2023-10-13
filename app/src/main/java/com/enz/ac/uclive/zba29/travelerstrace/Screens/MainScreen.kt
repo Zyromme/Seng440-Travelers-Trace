@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
@@ -47,6 +49,19 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
     val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
     val currentDate = LocalDate.now().format(dateFormatter)
     val scope = rememberCoroutineScope()
+
+    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+
+    LaunchedEffect(navBackStackEntry) {
+        // Listen for changes in the back stack entry
+        navBackStackEntry?.destination?.route?.let { currentDestination ->
+            if (currentDestination == Screen.MainScreen.route) {
+                // Reload data when returning from OnJourneyScreen
+                viewModel.reloadJourneyList()
+            }
+        }
+    }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -96,7 +111,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                 title = "",
                                 date = currentDate,
                                 totalDistance = 0.0,
-                                image = R.drawable.walk1,
+                                description = "",
                                 type = ""
                             ))
                         navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
