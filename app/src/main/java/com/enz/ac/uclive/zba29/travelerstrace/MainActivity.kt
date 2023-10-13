@@ -182,12 +182,22 @@ class MainActivity : ComponentActivity() {
                             entry ->
                         OnJourneyScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController, onJourneyViewModel = onJourneyViewModel, onStop = { onStopTracking() })
                     }
-                    composable(route = Screen.CameraScreen.route) {
+                    composable(
+                        route = Screen.CameraScreen.route + "/{journeyId}",
+                        arguments = listOf(
+                            navArgument("journeyId") {
+                                type = NavType.StringType
+                                nullable = false
+                            }
+                        )
+                    ) {
+                            entry ->
                         CameraScreen(
                             navController = navController,
                             outputDirectory = outputDirectory,
                             cameraExecutor = cameraExecutor,
-                            cameraViewModel = cameraViewModel
+                            cameraViewModel = cameraViewModel,
+                            journeyId = entry.arguments?.getString("journeyId")
                         )
                     }
                 }

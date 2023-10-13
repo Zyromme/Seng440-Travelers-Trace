@@ -92,7 +92,7 @@ fun OnJourneyScreen(journeyId: String?,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
             onStop = onStop,
-            journeyId = journeyId?.toLongOrNull() ?: 0,
+            journeyId = journeyId!!,
             saveJourneyDetails = { saveJourneyDetails() },
             )
     } else {
@@ -101,7 +101,7 @@ fun OnJourneyScreen(journeyId: String?,
             composition = composition,
             onJourneyViewModel = onJourneyViewModel,
             onStop = onStop,
-            journeyId = journeyId?.toLongOrNull() ?: 0,
+            journeyId = journeyId!!,
             saveJourneyDetails = { saveJourneyDetails() },
             )
     }
@@ -114,9 +114,9 @@ fun PortraitOnJourneyScreen(
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
     onStop: () -> Unit,
-    journeyId: Long,
+    journeyId: String,
     saveJourneyDetails: () -> Unit,
-) {
+    ) {
 
     Scaffold(
         topBar = {
@@ -175,7 +175,7 @@ fun PortraitOnJourneyScreen(
                     )
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { /*TODO: Route to Camera Screen*/ },
+                        onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
                         Icon(
@@ -188,8 +188,8 @@ fun PortraitOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
-                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
                             saveJourneyDetails()
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
@@ -209,9 +209,9 @@ fun LandScapeOnJourneyScreen(
     composition: LottieComposition?,
     onJourneyViewModel: OnJourneyViewModel,
     onStop: () -> Unit,
-    journeyId: Long,
+    journeyId: String,
     saveJourneyDetails: () -> Unit,
-) {
+    ) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -278,7 +278,7 @@ fun LandScapeOnJourneyScreen(
                 ) {
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { /*TODO: Route to Camera Screen*/ },
+                        onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
                         Icon(
@@ -291,9 +291,8 @@ fun LandScapeOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
-                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             saveJourneyDetails()
-                            /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {

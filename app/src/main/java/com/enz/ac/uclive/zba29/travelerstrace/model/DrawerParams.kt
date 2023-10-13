@@ -24,7 +24,7 @@ object DrawerParams {
         ),
         AppDrawerItemInfo(
             Screen.SettingsScreen.route,
-            R.string.drawer_settings,
+            R.string.settings,
             Icons.Default.Settings,
         ),
         AppDrawerItemInfo(
