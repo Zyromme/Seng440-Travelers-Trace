@@ -17,13 +17,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +39,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
@@ -42,11 +49,13 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnJourneyScreen(journeyId: String?,
                     navController: NavController,
@@ -58,6 +67,8 @@ fun OnJourneyScreen(journeyId: String?,
     val settingsStore = StoreSettings.getInstance(LocalContext.current)
     var requestInterval = 0L
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet = remember { mutableStateOf(false) }
 
     fun saveJourneyDetails() {
         if (onJourneyViewModel.journeyTitle != null) {
@@ -86,6 +97,14 @@ fun OnJourneyScreen(journeyId: String?,
         }
     }
 
+    editJourneyModal(
+        onJourneyViewModel,
+        onSave = {saveJourneyDetails()},
+        sheetState = sheetState,
+        showBottomSheet = showBottomSheet,
+        scope = scope
+    )
+
     if (isLandscape) {
         LandScapeOnJourneyScreen(
             navController = navController,
@@ -94,6 +113,8 @@ fun OnJourneyScreen(journeyId: String?,
             onStop = onStop,
             journeyId = journeyId!!,
             saveJourneyDetails = { saveJourneyDetails() },
+            showBottomSheet = showBottomSheet,
+            scope = scope
             )
     } else {
         PortraitOnJourneyScreen(
@@ -103,6 +124,8 @@ fun OnJourneyScreen(journeyId: String?,
             onStop = onStop,
             journeyId = journeyId!!,
             saveJourneyDetails = { saveJourneyDetails() },
+            showBottomSheet = showBottomSheet,
+            scope = scope
             )
     }
 }
@@ -116,6 +139,8 @@ fun PortraitOnJourneyScreen(
     onStop: () -> Unit,
     journeyId: String,
     saveJourneyDetails: () -> Unit,
+    showBottomSheet: MutableState<Boolean>,
+    scope: CoroutineScope,
     ) {
 
     Scaffold(
@@ -152,6 +177,7 @@ fun PortraitOnJourneyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
+
 
                     OutlinedTextField(
                         modifier = Modifier
@@ -211,6 +237,8 @@ fun LandScapeOnJourneyScreen(
     onStop: () -> Unit,
     journeyId: String,
     saveJourneyDetails: () -> Unit,
+    showBottomSheet: MutableState<Boolean>,
+    scope: CoroutineScope,
     ) {
     Scaffold(
         topBar = {
@@ -302,4 +330,36 @@ fun LandScapeOnJourneyScreen(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun editJourneyModal(
+    onJourneyViewModal: ViewModel,
+    onSave: () -> Unit,
+    sheetState: SheetState,
+    showBottomSheet: MutableState<Boolean>,
+    scope: CoroutineScope
+) {
+
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet.value = false
+            },
+            sheetState = sheetState
+        ) {
+            // Sheet content
+            Button(onClick = {
+
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        showBottomSheet.value = false
+                    }
+                }
+            }) {
+                Text("Hide bottom sheet")
+            }
+        }
+    }
 }
