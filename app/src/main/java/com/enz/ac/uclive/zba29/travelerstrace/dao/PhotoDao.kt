@@ -16,5 +16,5 @@ interface PhotoDao {
     fun getAllPhotosByJourneyId(journeyId: Long): Flow<List<Photo>>
 
     @Query("DELETE FROM photos WHERE journeyId = :journeyId")
-    fun deleteAllPhotosByJourneyId(journeyId: Long)
+    suspend fun deleteAllPhotosByJourneyId(journeyId: Long)
 }
