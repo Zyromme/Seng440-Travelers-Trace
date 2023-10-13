@@ -98,6 +98,7 @@ fun PortraitOnJourneyScreen(
     onStop: () -> Unit,
     journeyId: String
 ) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -168,6 +169,8 @@ fun PortraitOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
+                            /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
@@ -267,6 +270,7 @@ fun LandScapeOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
