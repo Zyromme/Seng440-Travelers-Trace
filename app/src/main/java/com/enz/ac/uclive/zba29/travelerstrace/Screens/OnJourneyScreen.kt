@@ -4,12 +4,18 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.sharp.CameraAlt
@@ -39,6 +45,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontStyle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.LottieComposition
@@ -49,6 +57,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
+import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -63,37 +72,27 @@ fun OnJourneyScreen(journeyId: String?,
                     onStop: () -> Unit) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_animation))
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    Log.e("", journeyId.toString())
-    val settingsStore = StoreSettings.getInstance(LocalContext.current)
-    var requestInterval = 0L
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
+//    val title = remember { mutableStateOf(onJourneyViewModel.journeyTitle + " " + journeyId) }
+//    val description = remember { mutableStateOf(onJourneyViewModel.description) }
+    val journey = remember {onJourneyViewModel.journey}
 
+
+    LaunchedEffect(journeyId) {
+        onJourneyViewModel.getJourneyById(journeyId!!.toLong())
+        journey.value = onJourneyViewModel.journey.value
+    }
+
+    LaunchedEffect(onJourneyViewModel.journey) {
+        journey.value = onJourneyViewModel.journey.value
+    }
     fun saveJourneyDetails() {
-        if (onJourneyViewModel.journeyTitle != null) {
-            if (journeyId != null) {
-                scope.launch {
-                    onJourneyViewModel.updateJourney(journeyId.toLong())
-                    onJourneyViewModel.journeyTitle = ""
-                    onJourneyViewModel.description = ""
-                }
+        if (journeyId != null) {
+            scope.launch {
+                onJourneyViewModel.updateJourney(journeyId.toLong())
             }
-        }
-    }
-
-    LaunchedEffect(Unit){
-        when(settingsStore.getSettings().first().trackingInterval) {
-            "3s" -> requestInterval = 3000L
-            "5s" -> requestInterval = 5000L
-            "10s" -> requestInterval = 10000L
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        while(true) {
-            Log.e("Testing time", "new time" + journeyId)
-            delay(requestInterval)
         }
     }
 
@@ -102,9 +101,14 @@ fun OnJourneyScreen(journeyId: String?,
         onSave = {saveJourneyDetails()},
         sheetState = sheetState,
         showBottomSheet = showBottomSheet,
-        scope = scope
+        scope = scope,
+//        title = title,
+//        description = description
     )
 
+    LaunchedEffect(onJourneyViewModel.journeyTitle, onJourneyViewModel.description) {
+
+    }
     if (isLandscape) {
         LandScapeOnJourneyScreen(
             navController = navController,
@@ -114,7 +118,8 @@ fun OnJourneyScreen(journeyId: String?,
             journeyId = journeyId!!,
             saveJourneyDetails = { saveJourneyDetails() },
             showBottomSheet = showBottomSheet,
-            scope = scope
+            title = journey.value!!.title,
+            description = journey.value!!.description
             )
     } else {
         PortraitOnJourneyScreen(
@@ -125,7 +130,8 @@ fun OnJourneyScreen(journeyId: String?,
             journeyId = journeyId!!,
             saveJourneyDetails = { saveJourneyDetails() },
             showBottomSheet = showBottomSheet,
-            scope = scope
+            title = journey.value!!.title,
+            description = journey.value!!.description
             )
     }
 }
@@ -140,7 +146,8 @@ fun PortraitOnJourneyScreen(
     journeyId: String,
     saveJourneyDetails: () -> Unit,
     showBottomSheet: MutableState<Boolean>,
-    scope: CoroutineScope,
+    title: String,
+    description: String
     ) {
 
     Scaffold(
@@ -177,28 +184,51 @@ fun PortraitOnJourneyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
-
-
-                    OutlinedTextField(
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth(0.9f),
-                        value = onJourneyViewModel.journeyTitle,
-                        onValueChange = { newTitle ->
-                            onJourneyViewModel.journeyTitle = newTitle
-                        },
-                        label = { Text(stringResource(id = R.string.on_journey_title)) }
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f),
-                        value = onJourneyViewModel.description,
-                        onValueChange = { newDescription ->
-                            onJourneyViewModel.description = newDescription
-                        },
-                        minLines = 5,
-                        maxLines = 5,
-                        label = { Text(stringResource(id = R.string.on_journey_description)) }
-                    )
+                            .fillMaxWidth()
+                            .padding(15.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .width(90.dp)
+                                .height(20.dp)
+                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                            onClick = {showBottomSheet.value = true},
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.edit_journey),
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                        horizontalAlignment = Alignment.Start) {
+                        Text(
+                            text = stringResource(id = R.string.on_journey_title),
+                            fontSize = 11.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(10.dp, 5.dp)
+                        )
+                        Text(
+                            text = title
+                            )
+                        Text(
+                            text = stringResource(id = R.string.on_journey_description),
+                            fontSize = 11.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(10.dp, 5.dp)
+                        )
+                        Text(
+                            text = description,
+                            fontSize = 14.sp
+                        )
+                    }
+
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
@@ -238,7 +268,8 @@ fun LandScapeOnJourneyScreen(
     journeyId: String,
     saveJourneyDetails: () -> Unit,
     showBottomSheet: MutableState<Boolean>,
-    scope: CoroutineScope,
+    title: String,
+    description: String
     ) {
     Scaffold(
         topBar = {
@@ -272,29 +303,31 @@ fun LandScapeOnJourneyScreen(
                         .fillMaxSize()
                         .weight(0.5f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceAround
                 ) {
-
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f),
-                        value = onJourneyViewModel.journeyTitle,
-                        onValueChange = { newTitle ->
-                            onJourneyViewModel.journeyTitle = newTitle
-                        },
-                        label = { Text(stringResource(id = R.string.on_journey_title)) }
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f),
-                        value = onJourneyViewModel.description,
-                        onValueChange = { newDescription ->
-                            onJourneyViewModel.description = newDescription
-                        },
-                        minLines = 5,
-                        maxLines = 5,
-                        label = { Text(stringResource(id = R.string.on_journey_description)) }
-                    )
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                        horizontalAlignment = Alignment.Start) {
+                        Text(
+                            text = stringResource(id = R.string.on_journey_title),
+                            fontSize = 11.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(10.dp, 5.dp)
+                        )
+                        Text(
+                            text = title
+                        )
+                        Text(
+                            text = stringResource(id = R.string.on_journey_description),
+                            fontSize = 11.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(10.dp, 5.dp)
+                        )
+                        Text(
+                            text = description,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
 
                 Column(
@@ -304,6 +337,19 @@ fun LandScapeOnJourneyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .height(20.dp)
+                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                            onClick = {showBottomSheet.value = true},
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.edit_journey),
+//                                fontSize = 10.sp
+                            )
+                        }
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
@@ -335,11 +381,13 @@ fun LandScapeOnJourneyScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun editJourneyModal(
-    onJourneyViewModal: ViewModel,
+    onJourneyViewModel: OnJourneyViewModel,
     onSave: () -> Unit,
     sheetState: SheetState,
     showBottomSheet: MutableState<Boolean>,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+//    title: MutableState<String>,
+//    description: MutableState<String>
 ) {
 
     if (showBottomSheet.value) {
@@ -347,19 +395,43 @@ fun editJourneyModal(
             onDismissRequest = {
                 showBottomSheet.value = false
             },
-            sheetState = sheetState
+            sheetState = sheetState,
         ) {
-            // Sheet content
-            Button(onClick = {
-
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        showBottomSheet.value = false
-                    }
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f),
+                    value = onJourneyViewModel.journeyTitle,
+                    onValueChange = { newTitle ->
+                        onJourneyViewModel.journeyTitle = newTitle
+                    },
+                    label = { Text(stringResource(id = R.string.on_journey_title)) }
+                )
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f),
+                    value = onJourneyViewModel.description,
+                    onValueChange = { newDescription ->
+                        onJourneyViewModel.description = newDescription
+                    },
+                    minLines = 5,
+                    maxLines = 5,
+                    label = { Text(stringResource(id = R.string.on_journey_description)) }
+                )
+                Spacer(modifier = Modifier.padding(10.dp))
+                Button(onClick = {
+                    onSave()
+                    showBottomSheet.value = false
+                }) {
+                    Text("Save Changes")
                 }
-            }) {
-                Text("Hide bottom sheet")
+                Spacer(modifier = Modifier.padding(50.dp))
             }
+
         }
     }
 }

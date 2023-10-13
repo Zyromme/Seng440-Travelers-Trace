@@ -7,7 +7,8 @@
     <string name="date_pattern">dd-MM-yyyy</string>
     <string name="channel_id">travelers_trace_channel</string>
     <string name="notification_title">Tracing Run</string>
-    <string name="on_journey_title">Journey Title</string>
-    <string name="on_journey_description">Tell me...</string>
+    <string name="on_journey_title">Title</string>
+    <string name="on_journey_description">Description</string>
     <string name="on_journey_end">End Journey</string>
+    <string name="edit_journey">Edit Journey</string>
 </resources>
