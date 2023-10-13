@@ -16,12 +16,13 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
         return journeyDao.insert(journey)
     }
 
+    @WorkerThread
     suspend fun updateJourney(journeyID: Long, title: String, description: String) {
         journeyDao.updateJourney(journeyID, title, description)
     }
 
     @WorkerThread
     suspend fun deleteJourney(journey: Journey) {
-        journeyDao.delete(journey);
+        journeyDao.delete(journey)
     }
 }

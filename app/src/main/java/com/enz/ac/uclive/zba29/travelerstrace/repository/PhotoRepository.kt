@@ -18,7 +18,7 @@ class PhotoRepository @Inject constructor(private val photoDao: PhotoDao) {
     }
 
     @WorkerThread
-    fun deleteAllPhotosByJourneyId(journeyId: Long) {
+    suspend fun deleteAllPhotosByJourneyId(journeyId: Long) {
         photoDao.deleteAllPhotosByJourneyId(journeyId)
     }
 }
