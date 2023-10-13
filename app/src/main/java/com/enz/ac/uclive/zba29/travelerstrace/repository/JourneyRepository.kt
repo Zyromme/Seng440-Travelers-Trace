@@ -13,8 +13,12 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(journey: Journey) {
-        journeyDao.insert(journey)
+    suspend fun insert(journey: Journey) : Long {
+        return journeyDao.insert(journey)
+    }
+
+    suspend fun updateJourney(journeyID: Long, title: String, description: String) {
+        journeyDao.updateJourney(journeyID, title, description)
     }
 
     suspend fun getJourneyById(journeyId: Long): Journey {

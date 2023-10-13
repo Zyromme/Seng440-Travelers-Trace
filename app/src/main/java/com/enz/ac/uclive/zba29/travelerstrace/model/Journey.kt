@@ -11,7 +11,7 @@ class Journey(
     @ColumnInfo var description: String,
     @ColumnInfo var date: String,
     @ColumnInfo var totalDistance: Double,
-    @ColumnInfo var image: Int,
+    @ColumnInfo var description: String,
     @ColumnInfo var type: String,
     )
 
