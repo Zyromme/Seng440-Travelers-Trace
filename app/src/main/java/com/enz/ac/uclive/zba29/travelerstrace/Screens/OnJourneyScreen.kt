@@ -169,7 +169,7 @@ fun PortraitOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
-                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             /*TODO: Change route to the journey detail screen*/
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
@@ -270,7 +270,7 @@ fun LandScapeOnJourneyScreen(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = {
                             onStop()
-                            onJourneyViewModel.saveAndMapLatLongToList(journeyId)
+                            onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             navController.navigate(Screen.MainScreen.route) },
                         contentPadding = PaddingValues(20.dp)
                     ) {
