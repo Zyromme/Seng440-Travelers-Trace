@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CameraScreenViewModel @Inject constructor(private val photoRepository: PhotoRepository): ViewModel() {
-    var lensFacing by mutableIntStateOf(CameraSelector.LENS_FACING_BACK)
+    var lensFacing by mutableIntStateOf(CameraSelector.LENS_FACING_FRONT)
     var photoFile by mutableStateOf<File?>(null)
 
     suspend fun savePhotoToRepo(journeyId: String, location: LatLng)
@@ -30,6 +30,7 @@ class CameraScreenViewModel @Inject constructor(private val photoRepository: Pho
                 filePath = photo.path
             )
             photoRepository.insert(newPhoto)
+            photoFile = null
         }
     }
 

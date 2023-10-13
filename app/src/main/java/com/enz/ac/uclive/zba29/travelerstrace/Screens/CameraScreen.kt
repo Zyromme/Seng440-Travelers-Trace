@@ -78,16 +78,17 @@ private fun takePhoto(
     cameraExecutor: Executor,
     handlePhotoCapture: (File) -> Unit
 ) {
-
     val photoFile = File(
         outputDirectory,
         SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US).format(System.currentTimeMillis()) + ".jpg"
     )
 
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
+    Log.i("jee", "hi")
     imageCapture.takePicture(outputOptions, cameraExecutor, object: ImageCapture.OnImageSavedCallback {
-        override fun onError(exception: ImageCaptureException) {}
+        override fun onError(exception: ImageCaptureException) {
+            Log.i("jee", exception.toString())
+        }
         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
             handlePhotoCapture(photoFile)
         }
@@ -103,6 +104,7 @@ fun CameraScreen(
     cameraViewModel: CameraScreenViewModel,
     journeyId: String?
 ) {
+    val lensFacing = cameraViewModel.lensFacing
     val scope = rememberCoroutineScope()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val dialogMaxHeight: Float
@@ -141,7 +143,7 @@ fun CameraScreen(
         }
     }
 
-    LaunchedEffect(cameraViewModel.lensFacing) {
+    LaunchedEffect(lensFacing) {
         val cameraProvider = context.getCameraProvider()
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(
@@ -165,7 +167,8 @@ fun CameraScreen(
             previewView = previewView,
             handlePhotoCapture = ::handlePhotoCapture,
             imageCapture = imageCapture,
-            cameraViewModel = cameraViewModel
+            cameraViewModel = cameraViewModel,
+            journeyId = journeyId
         )
     } else {
         dialogMaxHeight = 0.8f
@@ -176,7 +179,8 @@ fun CameraScreen(
             previewView = previewView,
             handlePhotoCapture = ::handlePhotoCapture,
             imageCapture = imageCapture,
-            cameraViewModel = cameraViewModel
+            cameraViewModel = cameraViewModel,
+            journeyId = journeyId
         )
     }
 
@@ -200,7 +204,8 @@ fun PortraitCameraScreen(
     previewView: PreviewView,
     handlePhotoCapture: (File) -> Unit,
     imageCapture: ImageCapture,
-    cameraViewModel: CameraScreenViewModel
+    cameraViewModel: CameraScreenViewModel,
+    journeyId: String?
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
@@ -213,8 +218,7 @@ fun PortraitCameraScreen(
         ) {
             Button(
                 modifier = Modifier.weight(0.3f),
-                //TODO: change the onclick route to OnJourneyScreen
-                onClick = {navController.navigate(Screen.MainScreen.route)},
+                onClick = {navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId!!))},
                 colors = ButtonDefaults.buttonColors(Color.Transparent)
             ) {
                 Text(text = "Cancel", color = Color.White)
@@ -240,7 +244,7 @@ fun PortraitCameraScreen(
                 content = {
                     Icon(
                         imageVector = Icons.Sharp.Autorenew,
-                        contentDescription = "Take picture",
+                        contentDescription = "Switch camera",
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxSize()
@@ -260,7 +264,8 @@ fun LandscapeCameraScreen(
     previewView: PreviewView,
     handlePhotoCapture: (File) -> Unit,
     imageCapture: ImageCapture,
-    cameraViewModel: CameraScreenViewModel
+    cameraViewModel: CameraScreenViewModel,
+    journeyId: String?
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
@@ -290,14 +295,7 @@ fun LandscapeCameraScreen(
                 modifier = Modifier
                     .weight(0.4f)
                     .fillMaxSize(0.8f),
-                onClick = {
-                    takePhoto(
-                        imageCapture,
-                        outputDirectory,
-                        cameraExecutor,
-                        handlePhotoCapture
-                    )
-                },
+                onClick = { takePhoto(imageCapture, outputDirectory, cameraExecutor, handlePhotoCapture) },
                 content = {
                     Icon(
                         imageVector = Icons.Sharp.Camera,
@@ -310,8 +308,7 @@ fun LandscapeCameraScreen(
             )
             Button(
                 modifier = Modifier.weight(0.3f),
-                //TODO: change the onclick route to OnJourneyScreen
-                onClick = { navController.navigate(Screen.MainScreen.route) },
+                onClick = { navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId!!)) },
                 colors = ButtonDefaults.buttonColors(Color.Transparent)
             ) {
                 Text(text = "Cancel", color = Color.White)
