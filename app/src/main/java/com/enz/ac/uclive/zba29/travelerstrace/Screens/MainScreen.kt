@@ -90,6 +90,10 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
         }
     }
 
+    LaunchedEffect(isDeleteConfirmationActive) {
+        viewModel.reloadJourneyList()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -180,22 +184,19 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
         )
 
         if (isDeleteConfirmationActive) {
-            journeyToDelete?.let {
-                DeleteConfirmationDialog(
-                    journey = it,
-                    onConfirmDelete = {
-                        viewModel.deleteJourney(journeyToDelete!!)
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        Toast.makeText(context, "Journey Removed", Toast.LENGTH_SHORT).show()
-                        isDeleteConfirmationActive = false // Reset delete confirmation state
-                        journeyToDelete = null
-                    },
-                    onDismiss = {
-                        isDeleteConfirmationActive = true // Reset delete confirmation state
-                        journeyToDelete = null
-                    }
-                )
-            }
+            DeleteConfirmationDialog(
+                onConfirmDelete = {
+                    viewModel.deleteJourney(journeyToDelete!!)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    Toast.makeText(context, "Journey Removed", Toast.LENGTH_SHORT).show()
+                    isDeleteConfirmationActive = false // Reset delete confirmation state
+                    journeyToDelete = null
+                },
+                onDismiss = {
+                    isDeleteConfirmationActive = false // Reset delete confirmation state
+                    journeyToDelete = null
+                }
+            )
         }
     }
 }
@@ -203,7 +204,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteConfirmationDialog(
-    journey: Journey,
     onConfirmDelete: () -> Unit,
     onDismiss: () -> Unit
 ) {
