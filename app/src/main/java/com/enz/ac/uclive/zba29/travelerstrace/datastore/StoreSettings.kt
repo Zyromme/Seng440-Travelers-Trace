@@ -33,6 +33,7 @@ class StoreSettings(context: Context) {
         var isDark = booleanPreferencesKey("IS_DARK")
         var metric = stringPreferencesKey("METRIC")
         var language = stringPreferencesKey("LANGUAGE")
+        var trackingInterval = stringPreferencesKey("TRACKING_INTERVAL")
     }
 
     suspend fun setSettings(settings: Settings) {
@@ -40,6 +41,7 @@ class StoreSettings(context: Context) {
             it[Keys.isDark] = settings.isDark
             it[Keys.metric] = settings.metric
             it[Keys.language] = settings.language
+            it[Keys.trackingInterval] = settings.trackingInterval
         }
     }
 
@@ -47,7 +49,8 @@ class StoreSettings(context: Context) {
         Settings(
             isDark = it[Keys.isDark]?: true,
             metric = it[Keys.metric]?: "km",
-            language = it[Keys.language]?: "English"
+            language = it[Keys.language]?: "English",
+            trackingInterval = it[Keys.trackingInterval]?: "5s"
         )
     }
 }

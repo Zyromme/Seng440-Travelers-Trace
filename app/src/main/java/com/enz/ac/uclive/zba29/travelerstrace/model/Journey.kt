@@ -7,10 +7,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "journey")
 class Journey(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
-    @ColumnInfo var name: String,
+    @ColumnInfo var title: String,
     @ColumnInfo var date: String,
     @ColumnInfo var totalDistance: Double,
-    @ColumnInfo var image: Int,
+    @ColumnInfo var description: String,
     @ColumnInfo var type: String,
     )
 

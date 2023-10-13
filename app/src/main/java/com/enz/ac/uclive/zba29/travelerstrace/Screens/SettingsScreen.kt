@@ -21,8 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.component.SettingsDropdown
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 
@@ -36,13 +38,14 @@ fun SettingsScreen(
 
     val distanceMetrics = arrayOf("km", "mi")
     val languages = arrayOf("English", "Pirate")
+    val trackingInterval = arrayOf("3s", "5s", "10s")
 
     val settings by remember { mutableStateOf(currentSettings) }
 
     Scaffold(
         topBar = {
             TopAppBar (
-                title = { Text("Settings") },
+                title = {Text(text = stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = {navController.navigate(Screen.MainScreen.route)}) {
                         Icon(Icons.Default.ArrowBack, null)
@@ -86,6 +89,15 @@ fun SettingsScreen(
                     initialValue = settings.language,
                     onChange = { newLanguage ->
                         settings.language = newLanguage
+                        onSettingsChange(settings)
+                    }
+                )
+                SettingsDropdown(
+                    title = "Tracking Interval",
+                    choices = trackingInterval,
+                    initialValue = settings.trackingInterval,
+                    onChange = { newTrackingInterval ->
+                        settings.trackingInterval = newTrackingInterval
                         onSettingsChange(settings)
                     }
                 )

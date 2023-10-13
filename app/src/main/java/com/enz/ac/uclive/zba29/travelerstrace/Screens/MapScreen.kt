@@ -1,6 +1,7 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -12,11 +13,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.enz.ac.uclive.zba29.travelerstrace.model.MapState
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -32,16 +34,27 @@ import kotlinx.coroutines.launch
 @Composable
 fun MapScreen(
     navController: NavController,
-    state: MapState
+    viewModel: MapViewModel,
+    fusedLocationProviderClient: FusedLocationProviderClient
     ) {
-
+    val state = viewModel.state.value
     val mapProperties = MapProperties(
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
 
-    val lastKnownPosition = LatLng(state.lastKnownLocation!!.latitude, state.lastKnownLocation.longitude)
+    var lastKnownPosition = if (state.lastKnownLocation!= null) LatLng(state.lastKnownLocation.latitude, state.lastKnownLocation.longitude) else LatLng(0.0, 0.0)
+
+    LaunchedEffect(state) {
+        if (state.lastKnownLocation == null) {
+            viewModel.getDeviceLocation(fusedLocationProviderClient)
+        } else {
+            lastKnownPosition = LatLng(state.lastKnownLocation.latitude, state.lastKnownLocation.longitude)
+        }
+    }
+
+
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(lastKnownPosition, 17f)
+        position = CameraPosition.fromLatLngZoom(lastKnownPosition, 20f)
     }
 
 
@@ -65,9 +78,9 @@ fun MapScreen(
                     properties = mapProperties,
                     cameraPositionState = cameraPositionState
                 ) {
-                    val context = LocalContext.current
                     val scope = rememberCoroutineScope()
                     MapEffect(state.lastKnownLocation) { map ->
+                        Log.e("test", state.lastKnownLocation.toString())
                         map.setOnMapLoadedCallback {
                             scope.launch {
                                 cameraPositionState.animate(
@@ -77,7 +90,6 @@ fun MapScreen(
                                 )
                             }
                         }
-
                     }
                 }
             }
