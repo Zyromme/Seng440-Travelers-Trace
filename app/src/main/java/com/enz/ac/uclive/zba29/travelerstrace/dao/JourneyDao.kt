@@ -22,5 +22,5 @@ interface JourneyDao {
     fun getCount(): Flow<Int>
 
     @Query("SELECT * FROM journey WHERE id = :journeyId")
-    suspend fun getJourneyById(journeyId: Long) : Journey
+    suspend fun getJourneyById(journeyId: Long): Journey
 }
