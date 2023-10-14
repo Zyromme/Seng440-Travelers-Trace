@@ -57,7 +57,7 @@ fun JourneyDetailScreen(
 
     val latLong = journeyDetailViewModel.journeyGoogleLatLng
     val journey = journeyDetailViewModel.currentJourney
-////    val journeyPhotos: List<Photo> = journeyDetailViewModel.journeyPhotos.flatten
+    val photos = journeyDetailViewModel.journeyPhotos
     val cameraPosition = latLong[0]
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(cameraPosition, 20f)
