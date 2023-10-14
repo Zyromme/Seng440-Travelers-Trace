@@ -15,8 +15,8 @@ interface JourneyDao {
     @Query("SELECT * FROM journey")
     fun getAll(): Flow<List<Journey>>
 
-    @Query("UPDATE journey SET title = :title, description = :description WHERE id = :journeyId;")
-    suspend fun updateJourney(journeyId: Long, title: String, description: String)
+    @Query("UPDATE journey SET title = :title, description = :description, totalDistance = :totalDistance, duration = :duration WHERE id = :journeyId;")
+    suspend fun updateJourney(journeyId: Long, title: String, description: String, totalDistance: Double?, duration: Int?)
 
     @Query("SELECT COUNT(*) FROM journey")
     fun getCount(): Flow<Int>

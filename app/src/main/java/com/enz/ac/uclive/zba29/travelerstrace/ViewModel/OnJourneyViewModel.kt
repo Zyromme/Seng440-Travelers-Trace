@@ -4,15 +4,12 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import com.enz.ac.uclive.zba29.travelerstrace.model.LatLong
-import com.enz.ac.uclive.zba29.travelerstrace.model.MapState
 import com.enz.ac.uclive.zba29.travelerstrace.repository.JourneyRepository
 import com.enz.ac.uclive.zba29.travelerstrace.repository.LatLongRepository
 import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
@@ -26,19 +23,26 @@ class OnJourneyViewModel @Inject constructor(
     private val journeyRepository: JourneyRepository,
     private val latLongRepository: LatLongRepository
 ) : ViewModel() {
-    var journey: MutableState<Journey> =  mutableStateOf(Journey(0, "", "", "", 0.0, ""))
+    var journey: MutableState<Journey> =  mutableStateOf(Journey(0, "", "", "", 0.0, "", 0))
     var journeyTitle by mutableStateOf("")
     var description by mutableStateOf("")
 
     // Expose totalDistanceLiveData as a LiveData
-    val totalDistanceLiveData: LiveData<Float>
+    val totalDistanceLiveData: LiveData<Double>
         get() = TrackingService.totalDistanceLiveData
+
+    val journeyDuration: LiveData<Int>
+        get() = TrackingService.duration
+
     suspend fun updateJourney(journeyId: Long) {
         val journeyTitle = if (journeyTitle == "") "Journey $journeyId" else journeyTitle
+        Log.e("", totalDistanceLiveData.value.toString())
         journeyRepository.updateJourney(
                 journeyId,
                 journeyTitle,
-                description
+                description,
+                totalDistanceLiveData.value,
+                journeyDuration.value
             )
         getJourneyById(journeyId)
     }

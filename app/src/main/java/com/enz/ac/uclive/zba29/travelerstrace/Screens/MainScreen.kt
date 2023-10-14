@@ -162,7 +162,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                     date = currentDate,
                                     totalDistance = 0.0,
                                     description = "",
-                                    type = ""
+                                    type = "",
+                                    duration = 0
                                 ))
                             navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
                             onStart(id)
