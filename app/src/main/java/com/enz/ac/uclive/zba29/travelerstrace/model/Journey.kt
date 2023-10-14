@@ -8,9 +8,9 @@ import androidx.room.PrimaryKey
 class Journey(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
     @ColumnInfo var title: String,
+    @ColumnInfo var description: String,
     @ColumnInfo var date: String,
     @ColumnInfo var totalDistance: Double,
-    @ColumnInfo var description: String,
     @ColumnInfo var type: String,
     )
 

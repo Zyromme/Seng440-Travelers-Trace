@@ -11,13 +11,23 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
     val journeys: Flow<List<Journey>> = journeyDao.getAll()
     val numJourneys: Flow<Int> = journeyDao.getCount()
 
-    @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(journey: Journey) : Long {
         return journeyDao.insert(journey)
     }
 
+    @WorkerThread
     suspend fun updateJourney(journeyID: Long, title: String, description: String) {
         journeyDao.updateJourney(journeyID, title, description)
+    }
+
+    @WorkerThread
+    suspend fun getJourneyById(journeyId: Long): Journey {
+        return journeyDao.getJourneyById(journeyId)
+    }
+
+    @WorkerThread
+    suspend fun deleteJourney(journey: Journey) {
+        journeyDao.delete(journey)
     }
 }

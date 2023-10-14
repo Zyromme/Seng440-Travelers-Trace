@@ -14,6 +14,9 @@ interface LatLongDao {
     @Insert
     suspend fun insertAll(latLong: List<LatLong>)
 
+    @Query("DELETE FROM lat_long WHERE journeyId = :journeyId")
+    suspend fun deleteAllLatLongByJourneyId(journeyId: Long)
+
     @Query("SELECT * FROM lat_long WHERE journeyId = :journeyId")
-    fun getAllByJourneyId(journeyId: Long): Flow<List<LatLong>>
+    suspend fun getAllByJourneyId(journeyId: Long): List<LatLong>
 }

@@ -13,12 +13,12 @@ class PhotoRepository @Inject constructor(private val photoDao: PhotoDao) {
     }
 
     @WorkerThread
-    fun getAllPhotosByJourneyId(journeyId: Long): Flow<List<Photo>> {
+    suspend fun getAllPhotosByJourneyId(journeyId: Long): List<Photo> {
         return photoDao.getAllPhotosByJourneyId(journeyId)
     }
 
     @WorkerThread
-    fun deleteAllPhotosByJourneyId(journeyId: Long) {
+    suspend fun deleteAllPhotosByJourneyId(journeyId: Long) {
         photoDao.deleteAllPhotosByJourneyId(journeyId)
     }
 }

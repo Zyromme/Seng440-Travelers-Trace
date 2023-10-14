@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -24,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
@@ -79,6 +81,20 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+    private fun sharePhotoIntent(photo: File) {
+        val filePath: String = photo.path
+        val bitmap = BitmapFactory.decodeFile(filePath)
+
+        val intent = Intent(Intent.ACTION_SEND).apply{
+            type = "image/*"
+            putExtra(Intent.EXTRA_STREAM, bitmap)
+        }
+
+        if(intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        }
+    }
+
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -86,6 +102,7 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
     private val cameraViewModel: CameraScreenViewModel by viewModels()
     private val onJourneyViewModel: OnJourneyViewModel by viewModels()
+    private val journeyDetailViewModel: JourneyDetailViewModel by viewModels()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,7 +186,12 @@ class MainActivity : ComponentActivity() {
                         )
                     ) {
                             entry ->
-                        JourneyDetailScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController)
+                        JourneyDetailScreen(
+                            journeyId = entry.arguments?.getString("journeyId"),
+                            navController = navController,
+                            journeyDetailViewModel = journeyDetailViewModel,
+                            sharePhotoIntent = ::sharePhotoIntent
+                        )
                     }
                     composable(route = Screen.OnJourneyScreen.route + "/{journeyId}",
                         arguments = listOf(

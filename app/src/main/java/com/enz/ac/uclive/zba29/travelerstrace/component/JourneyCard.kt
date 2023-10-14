@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -37,17 +38,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.R
+import com.enz.ac.uclive.zba29.travelerstrace.Screens.Screen
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JourneyCard(journey: Journey) {
+fun JourneyCard(journey: Journey, navController: NavController) {
     Card(
+        onClick = { navController.navigate(Screen.JourneyDetailScreen.withArgs(journey.id.toString())) },
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
