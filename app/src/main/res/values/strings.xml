@@ -10,5 +10,9 @@
     <string name="on_journey_title">Title</string>
     <string name="on_journey_description">Description</string>
     <string name="on_journey_end">End Journey</string>
-    <string name="edit_journey">Edit Journey</string>
+    <string name="delete_dialog_title">Confirm Deletion</string>
+    <string name="delete_dialog_description">Are you sure you want to delete this journey?</string>
+    <string name="delete_dialog_delete">Delete</string>
+    <string name="delete_dialog_cancel">Cancel</string>
+    <string name="toast_delete">Journey Removed</string>
 </resources>
