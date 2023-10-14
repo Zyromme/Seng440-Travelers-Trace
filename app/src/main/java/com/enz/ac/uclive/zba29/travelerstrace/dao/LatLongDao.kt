@@ -18,5 +18,5 @@ interface LatLongDao {
     suspend fun deleteAllLatLongByJourneyId(journeyId: Long)
 
     @Query("SELECT * FROM lat_long WHERE journeyId = :journeyId")
-    fun getAllByJourneyId(journeyId: Long): Flow<List<LatLong>>
+    suspend fun getAllByJourneyId(journeyId: Long): List<LatLong>
 }
