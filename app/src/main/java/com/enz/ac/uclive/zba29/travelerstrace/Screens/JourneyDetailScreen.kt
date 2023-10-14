@@ -2,24 +2,26 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
 
+import android.content.res.Configuration
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,10 +34,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,13 +49,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,12 +67,18 @@ import java.io.File
 fun JourneyDetailScreen(
     journeyId: String?,
     navController: NavController,
-    journeyDetailViewModel: JourneyDetailViewModel,
-    sharePhotoIntent: (File) -> Unit
+    journeyDetailViewModel: JourneyDetailViewModel
 ) {
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    var dialogMaxHeight = 0.8f
+    if (isLandscape) {
+        dialogMaxHeight = 1.0f
+    }
+    val scope = rememberCoroutineScope()
     var latLong by remember { mutableStateOf( journeyDetailViewModel.journeyGoogleLatLng ) }
     var journey by remember { mutableStateOf( journeyDetailViewModel.currentJourney ) }
     var photos by remember { mutableStateOf( journeyDetailViewModel.journeyPhotos ) }
+    var cameraPosition by remember { mutableStateOf( LatLng(43.5320, 172.6306) ) }
 
     LaunchedEffect(journeyId) {
         journeyDetailViewModel.getJourneyById(journeyId!!.toLong())
@@ -75,10 +90,18 @@ fun JourneyDetailScreen(
         latLong = journeyDetailViewModel.journeyGoogleLatLng
         journey = journeyDetailViewModel.currentJourney
         photos = journeyDetailViewModel.journeyPhotos
+        cameraPosition = latLong[0]
     }
 
+    var isPhotoDialogShowing by remember{ mutableStateOf(false) }
+    var currentDialogPhoto by remember{ mutableStateOf("") }
 
-    val cameraPosition = latLong[0]
+    fun showPhotoDialog(photoUri: String) {
+        isPhotoDialogShowing = true
+        currentDialogPhoto = photoUri
+        Log.i("jee", currentDialogPhoto)
+    }
+
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(cameraPosition, 20f)
     }
@@ -114,9 +137,29 @@ fun JourneyDetailScreen(
                             .height(500.dp),
                         cameraPositionState = cameraPositionState
                     ) {
+                        val scope = rememberCoroutineScope()
+                        MapEffect(cameraPosition) { map ->
+                            map.setOnMapLoadedCallback {
+                                scope.launch {
+                                    cameraPositionState.animate(
+                                        CameraUpdateFactory.newLatLng(
+                                            cameraPosition
+                                        )
+                                    )
+                                }
+                            }
+                        }
+
                         photos.forEach { photo ->
-                            Marker(
-                                state = MarkerState(LatLng(photo.lat, photo.lng))
+                            Circle(
+                                center = LatLng(photo.lat, photo.lng),
+                                clickable = true,
+                                fillColor = Color.Cyan.copy(alpha = 0.5f),
+                                radius = 3.0,
+                                strokeColor = Color.Blue,
+                                onClick = {
+                                    showPhotoDialog(photo.filePath)
+                                }
                             )
                         }
                         Polyline(
@@ -162,25 +205,48 @@ fun JourneyDetailScreen(
             }
         }
     )
+
+    if (isPhotoDialogShowing) {
+        DisplayPhotoDialog(
+            photoUri = currentDialogPhoto,
+            maxHeight = dialogMaxHeight,
+            onDismissRequest = {
+                isPhotoDialogShowing = false
+                currentDialogPhoto = ""
+            }
+        )
+    }
 }
 
 
 
-//@Composable
-//fun DisplayPhotoDialog(
-//    photoUri: String
-//) {
-//    val painter = rememberImagePainter(data = photoUri)
-//    Dialog(onDismissRequest = {}) {
-//        Card {
-//            Column {
-//                Image(
-//                    painter = painter,
-//                    contentDescription = "Photo",
-//                    contentScale = ContentScale.Fit,
-//                    modifier
-//                )
-//            }
-//        }
-//    }
-//}
+@Composable
+fun DisplayPhotoDialog(
+    photoUri: String,
+    maxHeight: Float,
+    onDismissRequest: () -> Unit
+) {
+    val painter = rememberImagePainter(data = File(photoUri))
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(maxHeight)
+                .padding(20.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = "Photo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(0.8f)
+                )
+            }
+        }
+    }
+}
