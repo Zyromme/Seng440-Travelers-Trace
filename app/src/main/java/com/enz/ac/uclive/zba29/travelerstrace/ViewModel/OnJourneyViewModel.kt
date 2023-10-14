@@ -25,7 +25,7 @@ class OnJourneyViewModel @Inject constructor(
     private val journeyRepository: JourneyRepository,
     private val latLongRepository: LatLongRepository
 ) : ViewModel() {
-    var journey: MutableState<Journey> =  mutableStateOf(Journey(0, "", "", 0.0, "", ""))
+    var journey: MutableState<Journey> =  mutableStateOf(Journey(0, "", "", "", 0.0, ""))
     var journeyTitle by mutableStateOf("")
     var description by mutableStateOf("")
 

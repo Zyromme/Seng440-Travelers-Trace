@@ -21,6 +21,7 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
         journeyDao.updateJourney(journeyID, title, description)
     }
 
+    @WorkerThread
     suspend fun getJourneyById(journeyId: Long): Journey {
         return journeyDao.getJourneyById(journeyId)
     }
@@ -28,9 +29,5 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
     @WorkerThread
     suspend fun deleteJourney(journey: Journey) {
         journeyDao.delete(journey)
-    }
-
-    suspend fun getJourneyById(journeyId: Long): Journey {
-        return journeyDao.getJourneyById(journeyId)
     }
 }
