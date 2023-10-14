@@ -11,7 +11,14 @@ class LatLongRepository @Inject constructor(private val latLongDao: LatLongDao) 
     suspend fun insert(latLong: LatLong) : Long {
         return latLongDao.insert(latLong)
     }
+
+    @WorkerThread
     suspend fun insertAll(latLong: List<LatLong>) {
         latLongDao.insertAll(latLong)
+    }
+
+    @WorkerThread
+    suspend fun deleteAllLatLongByJourneyId(journeyId: Long) {
+        latLongDao.deleteAllLatLongByJourneyId(journeyId)
     }
 }
