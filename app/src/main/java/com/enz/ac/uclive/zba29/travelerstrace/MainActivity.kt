@@ -81,21 +81,6 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
-    private fun sharePhotoIntent(photo: File) {
-        val filePath: String = photo.path
-        val bitmap = BitmapFactory.decodeFile(filePath)
-
-        val intent = Intent(Intent.ACTION_SEND).apply{
-            type = "image/*"
-            putExtra(Intent.EXTRA_STREAM, bitmap)
-        }
-
-        if(intent.resolveActivity(packageManager) != null) {
-            startActivity(intent)
-        }
-    }
-
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private val mapViewModel: MapViewModel by viewModels()
@@ -189,8 +174,7 @@ class MainActivity : ComponentActivity() {
                         JourneyDetailScreen(
                             journeyId = entry.arguments?.getString("journeyId"),
                             navController = navController,
-                            journeyDetailViewModel = journeyDetailViewModel,
-                            sharePhotoIntent = ::sharePhotoIntent
+                            journeyDetailViewModel = journeyDetailViewModel
                         )
                     }
                     composable(route = Screen.OnJourneyScreen.route + "/{journeyId}",

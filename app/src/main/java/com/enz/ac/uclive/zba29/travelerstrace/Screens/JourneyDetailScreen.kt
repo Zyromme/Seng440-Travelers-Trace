@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -66,8 +67,7 @@ import java.io.File
 fun JourneyDetailScreen(
     journeyId: String?,
     navController: NavController,
-    journeyDetailViewModel: JourneyDetailViewModel,
-    sharePhotoIntent: (File) -> Unit
+    journeyDetailViewModel: JourneyDetailViewModel
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     var dialogMaxHeight = 0.8f
