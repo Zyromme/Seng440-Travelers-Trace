@@ -13,7 +13,7 @@ interface PhotoDao {
     suspend fun insert(photo: Photo): Long
 
     @Query("SELECT * FROM photos WHERE journeyId = :journeyId")
-    fun getAllPhotosByJourneyId(journeyId: Long): List<Photo>
+    suspend fun getAllPhotosByJourneyId(journeyId: Long): List<Photo>
 
     @Query("DELETE FROM photos WHERE journeyId = :journeyId")
     suspend fun deleteAllPhotosByJourneyId(journeyId: Long)

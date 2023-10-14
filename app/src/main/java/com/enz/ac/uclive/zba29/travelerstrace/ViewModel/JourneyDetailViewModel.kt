@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class JourneyDetailViewModel @Inject constructor(private val journeyRepository: JourneyRepository, private val photoRepository: PhotoRepository, private val latLongRepository: LatLongRepository) : ViewModel() {
 
-    var currentJourney by mutableStateOf<Journey?>(null)
+    var currentJourney by mutableStateOf<Journey?>(Journey(0, "", "", "",0.0, ""))
     var journeyPhotos by mutableStateOf(listOf(Photo(0,0,0.0,0.0,"")))
     var journeyLatLongList by mutableStateOf(listOf(LatLong(0,0,0.0, 0.0)))
     var journeyGoogleLatLng by mutableStateOf(listOf(LatLng(0.0, 0.0)))
