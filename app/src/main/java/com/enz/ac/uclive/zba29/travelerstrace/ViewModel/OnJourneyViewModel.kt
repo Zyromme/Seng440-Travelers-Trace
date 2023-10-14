@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
@@ -29,6 +30,9 @@ class OnJourneyViewModel @Inject constructor(
     var journeyTitle by mutableStateOf("")
     var description by mutableStateOf("")
 
+    // Expose totalDistanceLiveData as a LiveData
+    val totalDistanceLiveData: LiveData<Float>
+        get() = TrackingService.totalDistanceLiveData
     suspend fun updateJourney(journeyId: Long) {
         val journeyTitle = if (journeyTitle == "") "Journey $journeyId" else journeyTitle
         journeyRepository.updateJourney(
@@ -45,6 +49,7 @@ class OnJourneyViewModel @Inject constructor(
         journeyTitle = newJourney.title
         description = newJourney.description
     }
+
 
     fun saveAndMapLatLongToList(journeyId: Long) {
         val pathPoints = TrackingService.pathPoints.value

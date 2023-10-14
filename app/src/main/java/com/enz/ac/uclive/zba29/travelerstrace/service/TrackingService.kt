@@ -38,6 +38,10 @@ class TrackingService: LifecycleService() {
 
     lateinit var notificationManager : NotificationManager
 
+    private var previousLocation: Location? = null
+
+    private var totalDistance: Float = 0.0f
+
     var counter: Int = 0
 
     val stopwatchTimer = Timer()
@@ -46,6 +50,7 @@ class TrackingService: LifecycleService() {
         var isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
         val trackingInterval = MutableLiveData<Long>()
+        val totalDistanceLiveData = MutableLiveData<Float>()
         var currentJourney = MutableLiveData<Long>()
     }
 
@@ -128,6 +133,19 @@ class TrackingService: LifecycleService() {
         location?.let {
             val pos = LatLng(location.latitude, location.longitude)
             pathPoints.value!!.add(pos)
+            // Calculate distance from the previous location
+            previousLocation?.let { previous ->
+                val distance = location.distanceTo(previous)
+                totalDistance += distance
+            }
+
+            // Update the previous location
+            previousLocation = location
+
+            Log.e("PREVIOUS", totalDistanceLiveData.toString())
+            Log.e("CURRENT", totalDistance.toString())
+
+            totalDistanceLiveData.postValue(totalDistance)
         }
     }
 
