@@ -188,7 +188,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                 onConfirmDelete = {
                     viewModel.deleteJourney(journeyToDelete!!)
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    Toast.makeText(context, "Journey Removed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.toast_delete, Toast.LENGTH_SHORT).show()
                     isDeleteConfirmationActive = false // Reset delete confirmation state
                     journeyToDelete = null
                 },
@@ -209,8 +209,8 @@ fun DeleteConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Confirm Deletion") },
-        text = { Text("Are you sure you want to delete this journey?") },
+        title = { Text(stringResource(id = R.string.delete_dialog_title)) },
+        text = { Text(stringResource(id = R.string.delete_dialog_description)) },
         confirmButton = {
             Button(
                 onClick = {
@@ -218,7 +218,7 @@ fun DeleteConfirmationDialog(
                     onDismiss()
                 }
             ) {
-                Text("Delete")
+                Text(stringResource(id = R.string.delete_dialog_delete))
             }
         },
         dismissButton = {
@@ -227,7 +227,7 @@ fun DeleteConfirmationDialog(
                     onDismiss()
                 }
             ) {
-                Text("Cancel")
+                Text(stringResource(id = R.string.delete_dialog_cancel))
             }
         }
     )
@@ -251,7 +251,7 @@ fun DismissBackground(dismissState: DismissState) {
         Icon(
             modifier = Modifier.size(35.dp),
             imageVector = Icons.Default.Delete,
-            contentDescription = "delete"
+            contentDescription = stringResource(id = R.string.delete_dialog_delete)
         )
         Spacer(modifier = Modifier)
     }
