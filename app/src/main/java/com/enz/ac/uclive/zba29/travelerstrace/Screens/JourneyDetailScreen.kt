@@ -5,11 +5,14 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,11 +46,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -251,29 +260,52 @@ fun DisplayPhotoDialog(
     maxHeight: Float,
     onDismissRequest: () -> Unit
 ) {
-    val painter = rememberImagePainter(data = File(photoUri))
     Dialog(onDismissRequest = onDismissRequest) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(maxHeight)
-                .padding(20.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painter,
-                    contentDescription = "Photo",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(0.8f)
+                PhotoImage(photoUri =  photoUri)
+    }
+}
+
+/*
+ Gestures in Jetpack Compose
+https://www.youtube.com/watch?v=1tkVjBxdGrk&t=1195s
+https://gist.github.com/JolandaVerhoef/41bbacadead2ba3ce8014d67014efbdd
+ */
+@Composable
+private fun PhotoImage(photoUri: String) {
+    var offset by remember { mutableStateOf(Offset.Zero) }
+    var zoom by remember { mutableStateOf(1f) }
+    val painter = rememberImagePainter(data = File(photoUri))
+
+    Image(
+        painter = painter,
+        contentDescription = "Photo",
+        contentScale = ContentScale.Fit,
+        modifier = Modifier
+            .clipToBounds()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = { tapOffset ->
+                        zoom = if (zoom > 1f) 1f else 2f
+                        offset = calculateDoubleTapOffset(zoom, size, tapOffset)
+                    }
                 )
             }
-        }
-    }
+            .pointerInput(Unit) {
+                detectTransformGestures { centroid, pan, gestureZoom, _ ->
+                    offset = offset.calculateNewOffset(
+                        centroid, pan, zoom, gestureZoom, size
+                    )
+                    zoom = maxOf(1f, zoom * gestureZoom)
+                }
+            }
+            .graphicsLayer {
+                translationX = -offset.x * zoom
+                translationY = -offset.y * zoom
+                scaleX = zoom; scaleY = zoom
+                transformOrigin = TransformOrigin(0f, 0f)
+            }
+            .aspectRatio(1f)
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -294,4 +326,32 @@ fun journeyDetails(
 
         }
     }
+}
+
+fun calculateDoubleTapOffset(
+    zoom: Float,
+    size: IntSize,
+    tapOffset: Offset
+): Offset {
+    val newOffset = Offset(tapOffset.x, tapOffset.y)
+    return Offset(
+        newOffset.x.coerceIn(0f, (size.width / zoom) * (zoom - 1f)),
+        newOffset.y.coerceIn(0f, (size.height / zoom) * (zoom - 1f))
+    )
+}
+
+fun Offset.calculateNewOffset(
+    centroid: Offset,
+    pan: Offset,
+    zoom: Float,
+    gestureZoom: Float,
+    size: IntSize
+): Offset {
+    val newScale = maxOf(1f, zoom * gestureZoom)
+    val newOffset = (this + centroid / zoom) -
+            (centroid / newScale + pan / zoom)
+    return Offset(
+        newOffset.x.coerceIn(0f, (size.width / zoom) * (zoom - 1f)),
+        newOffset.y.coerceIn(0f, (size.height / zoom) * (zoom - 1f))
+    )
 }
