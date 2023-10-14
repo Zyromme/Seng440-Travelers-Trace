@@ -3,8 +3,6 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material.icons.sharp.Share
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,25 +28,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +60,7 @@ fun JourneyDetailScreen(
     var latLong by remember { mutableStateOf( journeyDetailViewModel.journeyGoogleLatLng ) }
     var journey by remember { mutableStateOf( journeyDetailViewModel.currentJourney ) }
     var photos by remember { mutableStateOf( journeyDetailViewModel.journeyPhotos ) }
+    var cameraPosition by remember { mutableStateOf( LatLng(43.5320, 172.6306) ) }
 
     LaunchedEffect(journeyId) {
         journeyDetailViewModel.getJourneyById(journeyId!!.toLong())
@@ -75,10 +72,9 @@ fun JourneyDetailScreen(
         latLong = journeyDetailViewModel.journeyGoogleLatLng
         journey = journeyDetailViewModel.currentJourney
         photos = journeyDetailViewModel.journeyPhotos
+        cameraPosition = latLong[0]
     }
 
-
-    val cameraPosition = latLong[0]
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(cameraPosition, 20f)
     }
@@ -114,6 +110,19 @@ fun JourneyDetailScreen(
                             .height(500.dp),
                         cameraPositionState = cameraPositionState
                     ) {
+                        val scope = rememberCoroutineScope()
+                        MapEffect(cameraPosition) { map ->
+                            map.setOnMapLoadedCallback {
+                                scope.launch {
+                                    cameraPositionState.animate(
+                                        CameraUpdateFactory.newLatLng(
+                                            cameraPosition
+                                        )
+                                    )
+                                }
+                            }
+                        }
+
                         photos.forEach { photo ->
                             Marker(
                                 state = MarkerState(LatLng(photo.lat, photo.lng))
