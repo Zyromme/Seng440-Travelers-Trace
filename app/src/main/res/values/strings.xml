@@ -15,4 +15,5 @@
     <string name="delete_dialog_delete">Delete</string>
     <string name="delete_dialog_cancel">Cancel</string>
     <string name="toast_delete">Journey Removed</string>
+    <string name="edit_journey">Edit Details</string>
 </resources>
