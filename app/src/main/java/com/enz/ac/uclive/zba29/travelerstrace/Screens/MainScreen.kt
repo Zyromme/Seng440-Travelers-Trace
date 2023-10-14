@@ -93,7 +93,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                 item(journeyList) {
                     journeyList.forEach {
                         JourneyCard(
-                            it
+                            it, navController
                         )
                     }
                 }

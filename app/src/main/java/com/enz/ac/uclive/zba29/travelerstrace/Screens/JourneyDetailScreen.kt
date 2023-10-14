@@ -1,9 +1,8 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
-import android.content.Intent
+
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.sharp.Share
@@ -25,19 +24,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.rememberCameraPositionState
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,9 +46,18 @@ fun JourneyDetailScreen(
     journeyDetailViewModel: JourneyDetailViewModel,
     sharePhotoIntent: (File) -> Unit
 ) {
-    journeyId?.let { journeyDetailViewModel.getJourneyById(it.toLong()) }
+    journeyId?.let {
+        journeyDetailViewModel.getJourneyById(it.toLong())
+        journeyDetailViewModel.getJourneyPhotos(it.toLong())
+    }
     val journey = journeyDetailViewModel.currentJourney
-    val journeyImagePainter = rememberImagePainter(data = journey?.image)
+//    val journeyPhotos: List<Photo> = journeyDetailViewModel.journeyPhotos.flatten
+    val cameraPosition = LatLng(43.5320, 172.633021)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(cameraPosition, 5f)
+    }
+    val state = rememberScrollState()
+
 
 
     if (journey == null) {
@@ -60,7 +67,7 @@ fun JourneyDetailScreen(
         Scaffold(
             topBar = {
                 TopAppBar (
-                    title = { Text("Map") },
+                    title = { Text(journey.title) },
                     navigationIcon = {
                         IconButton(onClick = {navController.navigate(Screen.MainScreen.route)}) {
                             Icon(Icons.Default.ArrowBack, null)
@@ -72,58 +79,52 @@ fun JourneyDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(it)
+                        .padding(it),
                 ){
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item{
-                            Column (
-                                modifier = Modifier.fillMaxWidth(0.9f),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ){
-                                Image(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(16.dp)),
-                                    painter = journeyImagePainter,
-                                    contentDescription = "Journey Image",
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Row(
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = journey.title,
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            text = journey.date,
-                                            color = Color.LightGray,
-                                            fontSize = 13.sp
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = { /*TODO: Call the share photo intent*/ },
-                                        content = {
-                                            Icon(
-                                                imageVector = Icons.Sharp.Share,
-                                                contentDescription = "Share Icon",
-                                                modifier = Modifier.fillMaxSize(0.2f)
-                                            )
-                                        }
-
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(10.dp))
+                    Column (
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(state)
+                            .padding(15.dp)
+                    ){
+                        GoogleMap(
+                            modifier = Modifier
+                                .height(500.dp),
+                            cameraPositionState = cameraPositionState
+                        ) {}
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
                                 Text(
-                                    text = journey.description
+                                    text = journey.title,
+                                    fontSize = 30.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = journey.date,
+                                    color = Color.LightGray,
+                                    fontSize = 20.sp
                                 )
                             }
+                            IconButton(
+                                onClick = { /*TODO: Call the share photo intent*/ },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Sharp.Share,
+                                        contentDescription = "Share Icon",
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+
+                            )
                         }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = journey.description
+                        )
                     }
                 }
             }
