@@ -48,7 +48,7 @@ class StoreSettings(context: Context) {
     fun getSettings() = pref.data.map {
         Settings(
             isDark = it[Keys.isDark]?: true,
-            metric = it[Keys.metric]?: "km",
+            metric = it[Keys.metric]?: "Metric",
             language = it[Keys.language]?: "English",
             trackingInterval = it[Keys.trackingInterval]?: "5s"
         )

@@ -1,9 +1,6 @@
 package com.enz.ac.uclive.zba29.travelerstrace.component
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,38 +12,53 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.LocationOn
+import androidx.compose.material.icons.sharp.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.Screen
+import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.service.formatDistance
+import com.enz.ac.uclive.zba29.travelerstrace.service.formatTime
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JourneyCard(journey: Journey, navController: NavController) {
+    val settingsStore = StoreSettings.getInstance(LocalContext.current)
+    var formattedDistance by remember { mutableStateOf("") }
+
+    LaunchedEffect(journey) {
+        formattedDistance = formatDistance(journey.totalDistance, settingsStore)
+    }
+
     Card(
         onClick = { navController.navigate(Screen.JourneyDetailScreen.withArgs(journey.id.toString())) },
         shape = RoundedCornerShape(16.dp),
@@ -106,8 +118,21 @@ fun JourneyCard(journey: Journey, navController: NavController) {
 
                     Text(
                         text = buildString {
-                            append(journey.totalDistance)
-                            append(" m")
+                            append(formattedDistance)
+                        },
+                        modifier = Modifier.padding(8.dp, 12.dp, 12.dp, 0.dp),
+                        style = typography.bodyMedium,
+                    )
+
+                    Icon(
+                        imageVector = Icons.Sharp.Timer,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp, 16.dp),
+                    )
+
+                    Text (
+                        text = buildString {
+                            append(formatTime(journey.duration))
                         },
                         modifier = Modifier.padding(8.dp, 12.dp, 12.dp, 0.dp),
                         style = typography.bodyMedium,
@@ -147,3 +172,4 @@ fun customShape() = object : Shape {
         )
     }
 }
+

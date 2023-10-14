@@ -36,7 +36,7 @@ fun SettingsScreen(
     currentSettings: Settings,
     onSettingsChange: (Settings) -> Unit) {
 
-    val distanceMetrics = arrayOf("km", "mi")
+    val distanceMetrics = arrayOf("Metric", "Imperial")
     val languages = arrayOf("English", "Pirate")
     val trackingInterval = arrayOf("3s", "5s", "10s")
 
