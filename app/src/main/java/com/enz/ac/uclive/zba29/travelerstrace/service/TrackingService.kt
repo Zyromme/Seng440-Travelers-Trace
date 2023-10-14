@@ -120,14 +120,21 @@ class TrackingService: LifecycleService() {
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             super.onLocationResult(result)
-//            result.locations.let { locations ->
-//                for(location in locations) {
-//                    addPathPoint(location)
-//                }
-//            }
-            addPathPoint(result.locations.last())
+            var lats = 0.0
+            var longs = 0.0
+            val numPoints = result.locations.size
+            result.locations.let { locations ->
+                for(location in locations) {
+                    lats += location.latitude
+                    longs += location.longitude
+                }
+            }
+            var locationToChange = result.locations.last()
+            locationToChange.latitude = lats / numPoints
+            locationToChange.longitude = longs / numPoints
+            addPathPoint(locationToChange)
         }
-    }
+    }   
 
     private fun addPathPoint(location: Location?) {
         location?.let {
