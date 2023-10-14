@@ -51,14 +51,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JourneyCard(journey: Journey, navController: NavController) {
-    val settingsStore = StoreSettings.getInstance(LocalContext.current)
-    var formattedDistance by remember { mutableStateOf("") }
-
-    LaunchedEffect(journey) {
-        formattedDistance = formatDistance(journey.totalDistance, settingsStore)
-    }
-
+fun JourneyCard(journey: Journey, navController: NavController, measureSetting: String) {
     Card(
         onClick = { navController.navigate(Screen.JourneyDetailScreen.withArgs(journey.id.toString())) },
         shape = RoundedCornerShape(16.dp),
@@ -118,7 +111,7 @@ fun JourneyCard(journey: Journey, navController: NavController) {
 
                     Text(
                         text = buildString {
-                            append(formattedDistance)
+                            append(formatDistance(journey.totalDistance, measureSetting))
                         },
                         modifier = Modifier.padding(8.dp, 12.dp, 12.dp, 0.dp),
                         style = typography.bodyMedium,

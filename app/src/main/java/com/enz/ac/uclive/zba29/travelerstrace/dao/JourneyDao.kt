@@ -12,7 +12,7 @@ interface JourneyDao {
     @Delete
     suspend fun delete(journey: Journey)
 
-    @Query("SELECT * FROM journey")
+    @Query("SELECT * FROM journey ORDER BY id DESC")
     fun getAll(): Flow<List<Journey>>
 
     @Query("UPDATE journey SET title = :title, description = :description, totalDistance = :totalDistance, duration = :duration WHERE id = :journeyId;")

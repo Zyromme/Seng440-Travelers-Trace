@@ -2,9 +2,9 @@ package com.enz.ac.uclive.zba29.travelerstrace.service
 
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import kotlinx.coroutines.flow.first
-suspend fun formatDistance (distance: Double, settingsStore: StoreSettings): String {
+fun formatDistance (distance: Double, measureSetting: String): String {
     val feetConversionFactor = 3.28084
-    if (settingsStore.getSettings().first().metric == "Metric") {
+    if (measureSetting == "Metric") {
         return if (distance >= 1000) {
             val kilometers = distance / 1000.0
             String.format("%.2f km", kilometers)

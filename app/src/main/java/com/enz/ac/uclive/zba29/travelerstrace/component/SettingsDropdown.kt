@@ -52,7 +52,7 @@ fun SettingsDropdown(title: String,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = optionsExpanded) },
                 modifier = Modifier
                     .menuAnchor()
-                    .width(130.dp), //TODO change this
+                    .width(150.dp), //TODO change this
                 shape = RoundedCornerShape(15.dp)
             )
 

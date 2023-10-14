@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
             val settingsStore = StoreSettings.getInstance(LocalContext.current)
             var isDark by remember { mutableStateOf(false) }
             var settings by remember {
-                mutableStateOf<Settings?>(Settings(isDark = true, metric = "km", language = "English", trackingInterval = "5s"))
+                mutableStateOf<Settings?>(Settings(isDark = true, metric = "Metric", language = "English", trackingInterval = "5s"))
             }
 
             scope.launch {
@@ -152,7 +152,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
-                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { journeyId -> onStartTracking(journeyId) })
+                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { journeyId -> onStartTracking(journeyId) }, settings = settings!!)
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {

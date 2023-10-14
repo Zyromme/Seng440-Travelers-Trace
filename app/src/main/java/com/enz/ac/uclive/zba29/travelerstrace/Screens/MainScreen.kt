@@ -56,14 +56,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.enz.ac.uclive.zba29.travelerstrace.R
+import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: (Long) -> Unit) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: (Long) -> Unit, settings: Settings) {
     val journeyList by viewModel.journeys.observeAsState(listOf())
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -142,7 +144,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                     DismissBackground(dismissState = dismissState)
                                 },
                                 dismissContent = {
-                                    JourneyCard(journey, navController)
+                                    JourneyCard(journey, navController, settings.metric)
                                 }
                             )
                         }
