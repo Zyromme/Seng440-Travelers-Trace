@@ -105,7 +105,8 @@ fun JourneyDetailScreen(
     journeyId: String?,
     navController: NavController,
     journeyDetailViewModel: JourneyDetailViewModel,
-    settings: Settings
+    settings: Settings,
+    sharePhotosIntent: (List<Photo>) -> Unit,
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     var dialogMaxHeight = 0.8f
@@ -169,11 +170,13 @@ fun JourneyDetailScreen(
                             contentDescription = "Journey Info Button"
                         )
                     }
-                    IconButton(onClick = { /* do something */ }) {
-                        Icon(
-                            imageVector = Icons.Sharp.Share,
-                            contentDescription = "Share Journey Button"
-                        )
+                    if (photos.isNotEmpty() && photos[0].filePath != "") {
+                        IconButton(onClick = { sharePhotosIntent(photos) }) {
+                            Icon(
+                                imageVector = Icons.Sharp.Share,
+                                contentDescription = "Share Journey Button"
+                            )
+                        }
                     }
                 },
             )

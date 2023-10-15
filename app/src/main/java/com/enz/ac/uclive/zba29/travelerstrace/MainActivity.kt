@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -18,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,6 +32,7 @@ import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
+import com.enz.ac.uclive.zba29.travelerstrace.model.Photo
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.TravelersTraceTheme
@@ -80,6 +83,46 @@ class MainActivity : ComponentActivity() {
 
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
+
+//    private fun sharePhotoIntent(photos: List<Photo>) {
+//
+//        val filePath: String = photo.path
+//        val bitmap = BitmapFactory.decodeFile(filePath)
+//
+//        val intent = Intent(Intent.ACTION_SEND).apply{
+//            type = "image/*"
+//            putExtra(Intent.EXTRA_STREAM, bitmap)
+//        }
+//
+//        if(intent.resolveActivity(packageManager) != null) {
+//            startActivity(intent)
+//        }
+//    }
+
+    private fun sharePhotoIntent(photos: List<Photo>) {
+        val filesToSend: List<String> = photos.map { it.filePath }.toList()
+        val intent = Intent()
+        intent.action = Intent.ACTION_SEND_MULTIPLE
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some files.")
+        intent.type = "image/jpeg" // This example is sharing jpeg images
+
+        val files = ArrayList<Uri>()
+        for (path in filesToSend) {
+            val file = File(path)
+            val uri: Uri = FileProvider.getUriForFile(
+                this, "com.enz.ac.uclive.zba29.travelerstrace.fileprovider", file
+            )
+            files.add(uri)
+        }
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
+
+// Grant read permission to the receiving app.
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+        startActivity(intent)
+    }
+
+
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -175,7 +218,8 @@ class MainActivity : ComponentActivity() {
                             journeyId = entry.arguments?.getString("journeyId"),
                             navController = navController,
                             journeyDetailViewModel = journeyDetailViewModel,
-                            settings = settings!!
+                            settings = settings!!,
+                            sharePhotosIntent = ::sharePhotoIntent
                         )
                     }
                     composable(route = Screen.OnJourneyScreen.route + "/{journeyId}",
