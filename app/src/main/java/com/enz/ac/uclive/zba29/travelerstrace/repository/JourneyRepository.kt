@@ -17,10 +17,11 @@ class JourneyRepository @Inject constructor(private val journeyDao: JourneyDao) 
     }
 
     @WorkerThread
-    suspend fun updateJourney(journeyID: Long, title: String, description: String) {
-        journeyDao.updateJourney(journeyID, title, description)
+    suspend fun updateJourney(journeyID: Long, title: String, description: String, totalDistance: Double?, duration: Int?) {
+        journeyDao.updateJourney(journeyID, title, description, totalDistance, duration)
     }
 
+    @WorkerThread
     suspend fun getJourneyById(journeyId: Long): Journey {
         return journeyDao.getJourneyById(journeyId)
     }

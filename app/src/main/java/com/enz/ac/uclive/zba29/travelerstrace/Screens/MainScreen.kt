@@ -56,14 +56,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.enz.ac.uclive.zba29.travelerstrace.R
+import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
+import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: (Long) -> Unit) {
+fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: (Long) -> Unit, settings: Settings) {
     val journeyList by viewModel.journeys.observeAsState(listOf())
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -123,28 +126,31 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                 ) {
                     item(journeyList) {
                         journeyList.forEach { journey ->
-                            val dismissState = rememberDismissState(
-                                positionalThreshold = { 130.dp.toPx() },
-                                confirmValueChange = { dismissValue ->
-                                    when (dismissValue) {
-                                        DismissValue.DismissedToStart -> {
-                                            showDeleteConfirmationDialog(journey)
+                            if (journey.id != TrackingService.currentJourney.value ){
+                                val dismissState = rememberDismissState(
+                                    positionalThreshold = { 130.dp.toPx() },
+                                    confirmValueChange = { dismissValue ->
+                                        when (dismissValue) {
+                                            DismissValue.DismissedToStart -> {
+                                                showDeleteConfirmationDialog(journey)
+                                            }
+
+                                            else -> {}
                                         }
-                                        else -> {}
+                                        true
                                     }
-                                    true
-                                }
-                            )
-                            SwipeToDismiss(
-                                state = dismissState,
-                                directions = setOf(DismissDirection.EndToStart),
-                                background = {
-                                    DismissBackground(dismissState = dismissState)
-                                },
-                                dismissContent = {
-                                    JourneyCard(journey)
-                                }
-                            )
+                                )
+                                SwipeToDismiss(
+                                    state = dismissState,
+                                    directions = setOf(DismissDirection.EndToStart),
+                                    background = {
+                                        DismissBackground(dismissState = dismissState)
+                                    },
+                                    dismissContent = {
+                                        JourneyCard(journey, navController, settings.metric)
+                                    }
+                                )
+                            }
                         }
                     }
                     item() {
@@ -162,7 +168,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                     date = currentDate,
                                     totalDistance = 0.0,
                                     description = "",
-                                    type = ""
+                                    type = "",
+                                    duration = 0
                                 ))
                             navController.navigate(Screen.OnJourneyScreen.withArgs(id.toString()))
                             onStart(id)

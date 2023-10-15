@@ -38,6 +38,10 @@ class TrackingService: LifecycleService() {
 
     lateinit var notificationManager : NotificationManager
 
+    private var previousLocation: Location? = null
+
+    private var totalDistance: Float = 0.0f
+
     var counter: Int = 0
 
     val stopwatchTimer = Timer()
@@ -46,12 +50,16 @@ class TrackingService: LifecycleService() {
         var isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
         val trackingInterval = MutableLiveData<Long>()
+        val totalDistanceLiveData = MutableLiveData<Double>()
         var currentJourney = MutableLiveData<Long>()
+        var duration = MutableLiveData<Int>()
     }
 
     private fun postInitialValues() {
         isTracking.postValue(false)
         pathPoints.postValue(mutableListOf())
+        duration.postValue(0)
+        totalDistanceLiveData.postValue(0.0)
     }
 
     override fun onCreate() {
@@ -115,18 +123,44 @@ class TrackingService: LifecycleService() {
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             super.onLocationResult(result)
+            var lats = 0.0
+            var longs = 0.0
+            val numPoints = result.locations.size
             result.locations.let { locations ->
                 for(location in locations) {
-                    addPathPoint(location)
+                    lats += location.latitude
+                    longs += location.longitude
                 }
             }
+            var locationToChange = result.locations.last()
+            locationToChange.latitude = lats / numPoints
+            locationToChange.longitude = longs / numPoints
+            addPathPoint(locationToChange)
         }
-    }
+    }   
 
     private fun addPathPoint(location: Location?) {
         location?.let {
             val pos = LatLng(location.latitude, location.longitude)
-            pathPoints.value!!.add(pos)
+            // Calculate distance from the previous location
+            if (previousLocation != null) {
+                val distance = location.distanceTo(previousLocation!!)
+                if (distance >= 3) {
+                    pathPoints.value!!.add(pos)
+                    totalDistance += distance
+                    previousLocation = location
+                    totalDistanceLiveData.postValue(totalDistance.toDouble())
+                }
+            } else {
+                previousLocation = location
+                pathPoints.value!!.add(pos)
+            }
+
+            // Update the previous location
+
+            Log.e("PREVIOUS", totalDistanceLiveData.value.toString())
+            Log.e("CURRENT", totalDistance.toString())
+
         }
     }
 
@@ -142,11 +176,13 @@ class TrackingService: LifecycleService() {
     private fun stop() {
         isTracking.value = false
         currentJourney.value = 0
+        duration.postValue(0)
         stopwatchTimer.cancel()
         stopSelf()
     }
 
     private fun start(journeyId: Long) {
+        getSingleRequest()
         currentJourney.postValue(journeyId)
         isTracking.postValue(true)
         startForeground(1, buildNotification())
@@ -155,8 +191,35 @@ class TrackingService: LifecycleService() {
             override fun run() {
                 counter++
                 updateNotification()
+                duration.postValue(counter)
             }
         }, 0, 1000)
+    }
+
+    private fun getSingleRequest() {
+        if (ActivityCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        val locationResult = fusedLocationProviderClient.lastLocation
+        locationResult.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                addPathPoint(task.result)
+            }
+        }
     }
 
     private fun getNotificationManager() {

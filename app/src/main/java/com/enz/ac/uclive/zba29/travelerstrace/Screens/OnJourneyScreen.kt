@@ -75,8 +75,6 @@ fun OnJourneyScreen(journeyId: String?,
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
-//    val title = remember { mutableStateOf(onJourneyViewModel.journeyTitle + " " + journeyId) }
-//    val description = remember { mutableStateOf(onJourneyViewModel.description) }
     val journey = remember {onJourneyViewModel.journey}
 
 
@@ -102,8 +100,6 @@ fun OnJourneyScreen(journeyId: String?,
         sheetState = sheetState,
         showBottomSheet = showBottomSheet,
         scope = scope,
-//        title = title,
-//        description = description
     )
 
     LaunchedEffect(onJourneyViewModel.journeyTitle, onJourneyViewModel.description) {

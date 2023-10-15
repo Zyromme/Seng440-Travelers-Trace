@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -24,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.*
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MapViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
@@ -79,13 +81,13 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private val mapViewModel: MapViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
     private val cameraViewModel: CameraScreenViewModel by viewModels()
     private val onJourneyViewModel: OnJourneyViewModel by viewModels()
+    private val journeyDetailViewModel: JourneyDetailViewModel by viewModels()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,7 +132,7 @@ class MainActivity : ComponentActivity() {
             val settingsStore = StoreSettings.getInstance(LocalContext.current)
             var isDark by remember { mutableStateOf(false) }
             var settings by remember {
-                mutableStateOf<Settings?>(Settings(isDark = true, metric = "km", language = "English", trackingInterval = "5s"))
+                mutableStateOf<Settings?>(Settings(isDark = true, metric = "Metric", language = "English", trackingInterval = "5s"))
             }
 
             scope.launch {
@@ -150,7 +152,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
                     composable(route = Screen.MainScreen.route) {
-                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { journeyId -> onStartTracking(journeyId) })
+                        MainScreen(navController = navController, viewModel = mainViewModel, onStart = { journeyId -> onStartTracking(journeyId) }, settings = settings!!)
                     }
                     composable(route = Screen.MapScreen.route,
                     ) {
@@ -169,7 +171,12 @@ class MainActivity : ComponentActivity() {
                         )
                     ) {
                             entry ->
-                        JourneyDetailScreen(journeyId = entry.arguments?.getString("journeyId"), navController = navController)
+                        JourneyDetailScreen(
+                            journeyId = entry.arguments?.getString("journeyId"),
+                            navController = navController,
+                            journeyDetailViewModel = journeyDetailViewModel,
+                            settings = settings!!
+                        )
                     }
                     composable(route = Screen.OnJourneyScreen.route + "/{journeyId}",
                         arguments = listOf(
