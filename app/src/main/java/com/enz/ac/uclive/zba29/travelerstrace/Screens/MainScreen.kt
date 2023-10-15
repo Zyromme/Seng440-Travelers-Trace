@@ -21,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.twotone.Explore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DismissDirection
@@ -208,9 +210,10 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                     shape = CircleShape,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
+                        imageVector = if (viewModel.journeyId == null) Icons.Default.PlayArrow else Icons.TwoTone.Explore,
                         contentDescription = null,
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             },
