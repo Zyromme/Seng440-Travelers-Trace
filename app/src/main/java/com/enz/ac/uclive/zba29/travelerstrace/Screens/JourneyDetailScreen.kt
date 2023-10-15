@@ -1,16 +1,13 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
-
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -67,7 +64,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -80,7 +76,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
@@ -89,7 +84,6 @@ import com.enz.ac.uclive.zba29.travelerstrace.model.Photo
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatDistance
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatTime
-import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.md_theme_dark_surface
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.md_theme_light_primary
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -100,7 +94,6 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -124,10 +117,10 @@ fun JourneyDetailScreen(
         dialogMaxHeight = 1.0f
     }
     val scope = rememberCoroutineScope()
-    var latLong by remember { mutableStateOf( journeyDetailViewModel.journeyGoogleLatLng ) }
-    var journey by remember { mutableStateOf( journeyDetailViewModel.currentJourney ) }
-    var photos by remember { mutableStateOf( journeyDetailViewModel.journeyPhotos ) }
-    var cameraPosition by remember { mutableStateOf( LatLng(-43.5320, 172.6306) ) }
+    var latLong by remember { mutableStateOf(journeyDetailViewModel.journeyGoogleLatLng) }
+    var journey by remember { mutableStateOf(journeyDetailViewModel.currentJourney) }
+    var photos by remember { mutableStateOf(journeyDetailViewModel.journeyPhotos) }
+    var cameraPosition by remember { mutableStateOf(LatLng(-43.5320, 172.6306)) }
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
     var isLoading by remember {
@@ -140,7 +133,10 @@ fun JourneyDetailScreen(
         journeyDetailViewModel.getJourneyLatLongList(journeyId.toLong())
     }
 
-    LaunchedEffect(journeyDetailViewModel.journeyPhotos, journeyDetailViewModel.journeyGoogleLatLng) {
+    LaunchedEffect(
+        journeyDetailViewModel.journeyPhotos,
+        journeyDetailViewModel.journeyGoogleLatLng
+    ) {
         latLong = journeyDetailViewModel.journeyGoogleLatLng
         journey = journeyDetailViewModel.currentJourney
         photos = journeyDetailViewModel.journeyPhotos
@@ -152,8 +148,8 @@ fun JourneyDetailScreen(
         isLoading = false
     }
 
-    var isPhotoDialogShowing by remember{ mutableStateOf(false) }
-    var currentDialogPhoto by remember{ mutableStateOf("") }
+    var isPhotoDialogShowing by remember { mutableStateOf(false) }
+    var currentDialogPhoto by remember { mutableStateOf("") }
 
     fun showPhotoDialog(photoUri: String) {
         isPhotoDialogShowing = true
@@ -174,10 +170,10 @@ fun JourneyDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar (
+            TopAppBar(
                 title = { Text(journey!!.title) },
                 navigationIcon = {
-                    IconButton(onClick = {navController.navigate(Screen.MainScreen.route)}) {
+                    IconButton(onClick = { navController.navigate(Screen.MainScreen.route) }) {
                         Icon(Icons.Default.ArrowBack, null)
                     }
                 },
@@ -240,7 +236,6 @@ fun JourneyDetailScreen(
                 }
 
                 photos.forEach { photo ->
-                    Log.e("FILEPATH", photo.filePath)
                     PhotoMarkers(photo, { filePath -> showPhotoDialog(filePath) })
                 }
                 Polyline(
@@ -265,7 +260,6 @@ fun JourneyDetailScreen(
 }
 
 
-
 @Composable
 fun DisplayPhotoDialog(
     photoUri: String,
@@ -273,7 +267,7 @@ fun DisplayPhotoDialog(
     onDismissRequest: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-                PhotoImage(photoUri =  photoUri)
+        PhotoImage(photoUri = photoUri)
     }
 }
 
@@ -384,8 +378,10 @@ fun journeyDetails(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
-                    Divider(thickness = 1.dp,
-                         modifier = Modifier.padding(0.dp, 10.dp))
+                    Divider(
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(0.dp, 10.dp)
+                    )
                     Row {
                         Icon(
                             imageVector = Icons.Sharp.Description,
@@ -473,8 +469,8 @@ fun PhotoMarkers(photo: Photo, showPhotoDialog: (String) -> Unit) {
 https://stackoverflow.com/questions/74794828/custom-marker-icon-image-url-googlemap-compose-android
  */
 fun getRoundedCornerBitmap(bitmap: Bitmap): Bitmap {
-    val w=bitmap.width
-    val h=bitmap.height
+    val w = bitmap.width
+    val h = bitmap.height
     val radius = (h / 2).coerceAtMost(w / 2)
     val output = Bitmap.createBitmap(w + 16, h + 16, Bitmap.Config.ARGB_8888)
     val paint = Paint()
@@ -482,7 +478,12 @@ fun getRoundedCornerBitmap(bitmap: Bitmap): Bitmap {
     val canvas = Canvas(output)
     canvas.drawARGB(0, 0, 0, 0)
     paint.style = Paint.Style.FILL
-    canvas.drawCircle((w / 2 + 8).toFloat(), (h / 2 + 8).toFloat(), radius.toFloat(), paint) //continue
+    canvas.drawCircle(
+        (w / 2 + 8).toFloat(),
+        (h / 2 + 8).toFloat(),
+        radius.toFloat(),
+        paint
+    ) //continue
     paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
     canvas.drawBitmap(bitmap, 4f, 4f, paint)
     paint.xfermode = null

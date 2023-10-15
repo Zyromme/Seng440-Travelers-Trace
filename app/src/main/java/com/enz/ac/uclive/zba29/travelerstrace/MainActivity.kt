@@ -4,10 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -144,16 +142,6 @@ class MainActivity : ComponentActivity() {
                     startService(it)
                 }
             }
-
-//            fun navigateToOnJourneyScreenIfNeeded(intent: Intent?) {
-//                if(intent?.action == TrackingService.Actions.SHOW_TRACKING.toString()) {
-//                    val journeyId = TrackingService.currentJourney.value.toString()
-//                    Log.e("Current journey Id", journeyId)
-//                    navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId))
-//
-//                }
-//            }
-//            navigateToOnJourneyScreenIfNeeded(intent)
 
             val scope = rememberCoroutineScope()
             val settingsStore = StoreSettings.getInstance(LocalContext.current)

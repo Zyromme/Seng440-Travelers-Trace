@@ -1,7 +1,6 @@
 package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -36,19 +35,23 @@ fun MapScreen(
     navController: NavController,
     viewModel: MapViewModel,
     fusedLocationProviderClient: FusedLocationProviderClient
-    ) {
+) {
     val state = viewModel.state.value
     val mapProperties = MapProperties(
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
 
-    var lastKnownPosition = if (state.lastKnownLocation!= null) LatLng(state.lastKnownLocation.latitude, state.lastKnownLocation.longitude) else LatLng(0.0, 0.0)
+    var lastKnownPosition = if (state.lastKnownLocation != null) LatLng(
+        state.lastKnownLocation.latitude,
+        state.lastKnownLocation.longitude
+    ) else LatLng(0.0, 0.0)
 
     LaunchedEffect(state) {
         if (state.lastKnownLocation == null) {
             viewModel.getDeviceLocation(fusedLocationProviderClient)
         } else {
-            lastKnownPosition = LatLng(state.lastKnownLocation.latitude, state.lastKnownLocation.longitude)
+            lastKnownPosition =
+                LatLng(state.lastKnownLocation.latitude, state.lastKnownLocation.longitude)
         }
     }
 
@@ -60,17 +63,17 @@ fun MapScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar (
+            TopAppBar(
                 title = { Text("Map") },
                 navigationIcon = {
-                    IconButton(onClick = {navController.navigate(Screen.MainScreen.route)}) {
+                    IconButton(onClick = { navController.navigate(Screen.MainScreen.route) }) {
                         Icon(Icons.Default.ArrowBack, null)
                     }
                 }
             )
         },
         content = {
-            Box (
+            Box(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 GoogleMap(
@@ -80,11 +83,10 @@ fun MapScreen(
                 ) {
                     val scope = rememberCoroutineScope()
                     MapEffect(state.lastKnownLocation) { map ->
-                        Log.e("test", state.lastKnownLocation.toString())
                         map.setOnMapLoadedCallback {
                             scope.launch {
                                 cameraPositionState.animate(
-                                     CameraUpdateFactory.newLatLng(
+                                    CameraUpdateFactory.newLatLng(
                                         lastKnownPosition
                                     )
                                 )

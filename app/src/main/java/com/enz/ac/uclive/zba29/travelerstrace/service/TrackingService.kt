@@ -242,12 +242,6 @@ class TrackingService: LifecycleService() {
         val minutes: Int = counter.div(60)
         val seconds: Int = counter.rem(60)
 
-//        val intent = Intent(this, MainActivity::class.java)
-//        intent.action = Actions.SHOW_TRACKING.toString()
-//        intent.putExtra("JOURNEY_ID", currentJourney.value)
-//        val pIntent = PendingIntent.getActivity(this, 0, intent,
-//            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-
         return NotificationCompat.Builder(this, R.string.channel_id.toString())
             .setContentTitle("Tracing Run")
             .setOngoing(true)
@@ -260,7 +254,6 @@ class TrackingService: LifecycleService() {
             )
             .setSmallIcon(R.mipmap.ic_launcher_travelers_trace_light_violet_foreground)
             .setOnlyAlertOnce(true)
-//            .setContentIntent(pIntent)
             .build()
     }
 

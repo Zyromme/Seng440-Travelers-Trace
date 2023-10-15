@@ -2,26 +2,19 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
 import android.content.res.Configuration
-import android.util.Log
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.sharp.CameraAlt
-import androidx.compose.material.icons.sharp.Stop
 import androidx.compose.material.icons.twotone.EditNote
 import androidx.compose.material.icons.twotone.Stop
 import androidx.compose.material3.Button
@@ -45,15 +38,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontStyle
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
@@ -62,26 +52,24 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.OnJourneyViewModel
-import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
-import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OnJourneyScreen(journeyId: String?,
-                    navController: NavController,
-                    onJourneyViewModel: OnJourneyViewModel,
-                    onStop: () -> Unit) {
+fun OnJourneyScreen(
+    journeyId: String?,
+    navController: NavController,
+    onJourneyViewModel: OnJourneyViewModel,
+    onStop: () -> Unit
+) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_animation))
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
-    val journey = remember {onJourneyViewModel.journey}
+    val journey = remember { onJourneyViewModel.journey }
 
 
     LaunchedEffect(journeyId) {
@@ -102,7 +90,7 @@ fun OnJourneyScreen(journeyId: String?,
 
     editJourneyModal(
         onJourneyViewModel,
-        onSave = {saveJourneyDetails()},
+        onSave = { saveJourneyDetails() },
         sheetState = sheetState,
         showBottomSheet = showBottomSheet,
         scope = scope,
@@ -122,7 +110,7 @@ fun OnJourneyScreen(journeyId: String?,
             showBottomSheet = showBottomSheet,
             title = journey.value!!.title,
             description = journey.value!!.description
-            )
+        )
     } else {
         PortraitOnJourneyScreen(
             navController = navController,
@@ -134,7 +122,7 @@ fun OnJourneyScreen(journeyId: String?,
             showBottomSheet = showBottomSheet,
             title = journey.value!!.title,
             description = journey.value!!.description
-            )
+        )
     }
 }
 
@@ -150,7 +138,7 @@ fun PortraitOnJourneyScreen(
     showBottomSheet: MutableState<Boolean>,
     title: String,
     description: String
-    ) {
+) {
 
     Scaffold(
         topBar = {
@@ -292,7 +280,7 @@ fun LandScapeOnJourneyScreen(
     showBottomSheet: MutableState<Boolean>,
     title: String,
     description: String
-    ) {
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -326,10 +314,12 @@ fun LandScapeOnJourneyScreen(
                         .weight(0.5f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                        horizontalAlignment = Alignment.Start) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp),
+                        horizontalAlignment = Alignment.Start
+                    ) {
                         Text(
                             text = stringResource(id = R.string.on_journey_title),
                             fontSize = 11.sp,
@@ -361,9 +351,9 @@ fun LandScapeOnJourneyScreen(
                 ) {
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = {showBottomSheet.value = true},
+                        onClick = { showBottomSheet.value = true },
                         contentPadding = PaddingValues(10.dp)
-                        ) {
+                    ) {
                         Icon(
                             modifier = Modifier
                                 .width(30.dp)
@@ -372,7 +362,7 @@ fun LandScapeOnJourneyScreen(
                             contentDescription = "Button to go to camera",
                             tint = Color.White
                         )
-                        }
+                    }
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
                         onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
@@ -390,7 +380,8 @@ fun LandScapeOnJourneyScreen(
                             onStop()
                             onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             saveJourneyDetails()
-                            navController.navigate(Screen.MainScreen.route) },
+                            navController.navigate(Screen.MainScreen.route)
+                        },
                         contentPadding = PaddingValues(10.dp)
                     ) {
                         Icon(
@@ -416,8 +407,6 @@ fun editJourneyModal(
     sheetState: SheetState,
     showBottomSheet: MutableState<Boolean>,
     scope: CoroutineScope,
-//    title: MutableState<String>,
-//    description: MutableState<String>
 ) {
 
     if (showBottomSheet.value) {
