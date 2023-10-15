@@ -107,7 +107,7 @@ fun JourneyDetailScreen(
     var latLong by remember { mutableStateOf( journeyDetailViewModel.journeyGoogleLatLng ) }
     var journey by remember { mutableStateOf( journeyDetailViewModel.currentJourney ) }
     var photos by remember { mutableStateOf( journeyDetailViewModel.journeyPhotos ) }
-    var cameraPosition by remember { mutableStateOf( LatLng(43.5320, 172.6306) ) }
+    var cameraPosition by remember { mutableStateOf( LatLng(-43.5320, 172.6306) ) }
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
 

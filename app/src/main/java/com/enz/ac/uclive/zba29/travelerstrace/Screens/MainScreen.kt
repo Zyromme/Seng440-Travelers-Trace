@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -81,7 +82,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
     val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
     val currentDate = LocalDate.now().format(dateFormatter)
     val scope = rememberCoroutineScope()
-    val navBackStackEntry = navController.currentBackStackEntryAsState().value
     var isDeleteConfirmationActive by remember { mutableStateOf(false) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -90,20 +90,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
         isDeleteConfirmationActive = true
     }
 
-    LaunchedEffect(navBackStackEntry) {
-        // Listen for changes in the back stack entry
-        navBackStackEntry?.destination?.route?.let { currentDestination ->
-            if (currentDestination == Screen.MainScreen.route) {
-                // Reload data when returning from OnJourneyScreen
-                viewModel.reloadJourneyList()
-            }
-        }
-    }
-
     LaunchedEffect(isDeleteConfirmationActive) {
-        if (!isDeleteConfirmationActive) {
             viewModel.reloadJourneyList()
-        }
     }
 
     ModalNavigationDrawer(
@@ -140,12 +128,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                     val dismissState = rememberDismissState(
                                         positionalThreshold = { 130.dp.toPx() },
                                         confirmValueChange = { dismissValue ->
-                                            when (dismissValue) {
-                                                DismissValue.DismissedToStart -> {
+                                            if (dismissValue == DismissValue.DismissedToStart) {
                                                     showDeleteConfirmationDialog(journey)
-                                                }
-
-                                                else -> {}
                                             }
                                             true
                                         }
@@ -177,12 +161,8 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                     val dismissState = rememberDismissState(
                                         positionalThreshold = { 130.dp.toPx() },
                                         confirmValueChange = { dismissValue ->
-                                            when (dismissValue) {
-                                                DismissValue.DismissedToStart -> {
+                                            if (dismissValue == DismissValue.DismissedToStart) {
                                                     showDeleteConfirmationDialog(journeyList[id])
-                                                }
-
-                                                else -> {}
                                             }
                                             true
                                         }
