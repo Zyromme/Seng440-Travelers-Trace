@@ -56,7 +56,7 @@ fun Drawer(
                 Spacer(modifier = Modifier.height(30.dp))
                 Icon(
                     imageVector = Icons.Sharp.DirectionsWalk,
-                    contentDescription = "Walking Icon",
+                    contentDescription = null,
                     tint = Color.White,
                 )
                 Text(

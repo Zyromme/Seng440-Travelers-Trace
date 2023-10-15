@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -48,6 +49,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.CameraScreenViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.service.TrackingService
 import kotlinx.coroutines.launch
@@ -84,10 +86,8 @@ private fun takePhoto(
     )
 
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-    Log.i("jee", "hi")
     imageCapture.takePicture(outputOptions, cameraExecutor, object: ImageCapture.OnImageSavedCallback {
         override fun onError(exception: ImageCaptureException) {
-            Log.i("jee", exception.toString())
         }
         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
             handlePhotoCapture(photoFile)
@@ -127,7 +127,6 @@ fun CameraScreen(
     fun deletePhotoCaptured() {
         if (cameraViewModel.photoFile?.exists() == true) {
             cameraViewModel.photoFile?.delete()
-            Log.i("TravelersTrace", "photo deleted")
             cameraViewModel.photoFile = null
         }
     }
@@ -221,7 +220,7 @@ fun PortraitCameraScreen(
                 onClick = {navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId!!))},
                 colors = ButtonDefaults.buttonColors(Color.Transparent)
             ) {
-                Text(text = "Cancel", color = Color.White)
+                Text(text = stringResource(id = R.string.cancel_camera), color = Color.White)
             }
             IconButton(
                 modifier = Modifier
@@ -231,7 +230,7 @@ fun PortraitCameraScreen(
                 content = {
                     Icon(
                         imageVector = Icons.Sharp.Camera,
-                        contentDescription = "Take picture",
+                        contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxSize()
@@ -244,7 +243,7 @@ fun PortraitCameraScreen(
                 content = {
                     Icon(
                         imageVector = Icons.Sharp.Autorenew,
-                        contentDescription = "Switch camera",
+                        contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxSize()
@@ -284,7 +283,7 @@ fun LandscapeCameraScreen(
                 content = {
                     Icon(
                         imageVector = Icons.Sharp.Autorenew,
-                        contentDescription = "Take picture",
+                        contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxSize()
@@ -299,7 +298,7 @@ fun LandscapeCameraScreen(
                 content = {
                     Icon(
                         imageVector = Icons.Sharp.Camera,
-                        contentDescription = "Take picture",
+                        contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
                             .fillMaxSize()
@@ -311,7 +310,7 @@ fun LandscapeCameraScreen(
                 onClick = { navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId!!)) },
                 colors = ButtonDefaults.buttonColors(Color.Transparent)
             ) {
-                Text(text = "Cancel", color = Color.White)
+                Text(text = stringResource(id = R.string.cancel_camera), color = Color.White)
             }
         }
     }
@@ -349,7 +348,7 @@ fun ConfirmPhotoDialog(
             ) {
                 Image(
                     painter = painter,
-                    contentDescription = "Image",
+                    contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxSize(0.8f)
@@ -363,7 +362,7 @@ fun ConfirmPhotoDialog(
                         onClick = { deletePhoto() },
                         modifier = Modifier.padding(8.dp),
                     ) {
-                        Text("Retake")
+                        Text(stringResource(id = R.string.retake_camera))
                     }
                     Button(
                         onClick = {
@@ -371,7 +370,7 @@ fun ConfirmPhotoDialog(
                             navController.navigate(Screen.OnJourneyScreen.withArgs(journeyId!!)) },
                         modifier = Modifier.padding(8.dp),
                     ) {
-                        Text("Save")
+                        Text(stringResource(id = R.string.save_camera))
                     }
                 }
             }

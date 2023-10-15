@@ -16,4 +16,7 @@
     <string name="delete_dialog_cancel">Cancel</string>
     <string name="toast_delete">Journey Removed</string>
     <string name="edit_journey">Edit Details</string>
+    <string name="cancel_camera">Cancel</string>
+    <string name="retake_camera">Retake</string>
+    <string name="save_camera">Save</string>
 </resources>
