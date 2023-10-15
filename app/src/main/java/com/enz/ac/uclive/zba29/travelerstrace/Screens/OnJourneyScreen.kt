@@ -3,6 +3,8 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.sharp.CameraAlt
+import androidx.compose.material.icons.sharp.Stop
+import androidx.compose.material.icons.twotone.EditNote
+import androidx.compose.material.icons.twotone.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -180,30 +186,12 @@ fun PortraitOnJourneyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(15.dp),
-                        horizontalArrangement = Arrangement.End
+                            .padding(8.dp),
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        Button(
-                            modifier = Modifier
-                                .width(90.dp)
-                                .height(20.dp)
-                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                            onClick = {showBottomSheet.value = true},
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.edit_journey),
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                        horizontalAlignment = Alignment.Start) {
                         Text(
                             text = stringResource(id = R.string.on_journey_title),
                             fontSize = 11.sp,
@@ -212,7 +200,7 @@ fun PortraitOnJourneyScreen(
                         )
                         Text(
                             text = title
-                            )
+                        )
                         Text(
                             text = stringResource(id = R.string.on_journey_description),
                             fontSize = 11.sp,
@@ -224,29 +212,67 @@ fun PortraitOnJourneyScreen(
                             fontSize = 14.sp
                         )
                     }
+                    Spacer(modifier = Modifier.padding(35.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                navController.navigate(
+                                    Screen.CameraScreen.withArgs(
+                                        journeyId
+                                    )
+                                )
+                            },
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .width(30.dp)
+                                    .height(30.dp),
+                                imageVector = Icons.Sharp.CameraAlt,
+                                contentDescription = "Button to go to camera",
+                                tint = Color.White
+                            )
+                        }
 
-                    Button(
-                        modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = { navController.navigate(Screen.CameraScreen.withArgs(journeyId)) },
-                        contentPadding = PaddingValues(20.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Sharp.CameraAlt,
-                            contentDescription = "Button to go to camera",
-                            tint = Color.White
-                        )
-                    }
-                    Button(
-                        modifier = Modifier.fillMaxWidth(0.9f),
-                        onClick = {
-                            onStop()
-                            saveJourneyDetails()
-                            onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
-                            /*TODO: Change route to the journey detail screen*/
-                            navController.navigate(Screen.MainScreen.route) },
-                        contentPadding = PaddingValues(20.dp)
-                    ) {
-                        Text(stringResource(id = R.string.on_journey_end))
+                        Button(
+                            modifier = Modifier
+                                .width(90.dp)
+                                .height(90.dp),
+                            onClick = {
+                                onStop()
+                                saveJourneyDetails()
+                                onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
+                                navController.navigate(Screen.MainScreen.route)
+                            },
+                            contentPadding = PaddingValues(20.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .width(70.dp)
+                                    .height(70.dp),
+                                imageVector = Icons.TwoTone.Stop,
+                                contentDescription = "",
+                                tint = Color.White
+                            )
+                        }
+
+                        Button(
+                            onClick = { showBottomSheet.value = true },
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .width(30.dp)
+                                    .height(30.dp),
+                                imageVector = Icons.TwoTone.EditNote,
+                                contentDescription = "",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -333,18 +359,19 @@ fun LandScapeOnJourneyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
-                        Button(
-                            modifier = Modifier
-                                .fillMaxWidth(0.9f)
-                                .height(20.dp)
-                                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                            onClick = {showBottomSheet.value = true},
-                            contentPadding = PaddingValues(0.dp)
+                    Button(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        onClick = {showBottomSheet.value = true},
+                        contentPadding = PaddingValues(10.dp)
                         ) {
-                            Text(
-                                text = stringResource(id = R.string.edit_journey),
-//                                fontSize = 10.sp
-                            )
+                        Icon(
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp),
+                            imageVector = Icons.TwoTone.EditNote,
+                            contentDescription = "Button to go to camera",
+                            tint = Color.White
+                        )
                         }
                     Button(
                         modifier = Modifier.fillMaxWidth(0.9f),
@@ -364,9 +391,16 @@ fun LandScapeOnJourneyScreen(
                             onJourneyViewModel.saveAndMapLatLongToList(journeyId.toLong())
                             saveJourneyDetails()
                             navController.navigate(Screen.MainScreen.route) },
-                        contentPadding = PaddingValues(20.dp)
+                        contentPadding = PaddingValues(10.dp)
                     ) {
-                        Text(stringResource(id = R.string.on_journey_end))
+                        Icon(
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp),
+                            imageVector = Icons.TwoTone.Stop,
+                            contentDescription = "Button to go to camera",
+                            tint = Color.White
+                        )
                     }
                 }
             }

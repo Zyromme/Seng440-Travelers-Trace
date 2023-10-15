@@ -84,26 +84,11 @@ class MainActivity : ComponentActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
-//    private fun sharePhotoIntent(photos: List<Photo>) {
-//
-//        val filePath: String = photo.path
-//        val bitmap = BitmapFactory.decodeFile(filePath)
-//
-//        val intent = Intent(Intent.ACTION_SEND).apply{
-//            type = "image/*"
-//            putExtra(Intent.EXTRA_STREAM, bitmap)
-//        }
-//
-//        if(intent.resolveActivity(packageManager) != null) {
-//            startActivity(intent)
-//        }
-//    }
-
     private fun sharePhotoIntent(photos: List<Photo>) {
         val filesToSend: List<String> = photos.map { it.filePath }.toList()
         val intent = Intent()
         intent.action = Intent.ACTION_SEND_MULTIPLE
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some files.")
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some photos.")
         intent.type = "image/jpeg" // This example is sharing jpeg images
 
         val files = ArrayList<Uri>()
@@ -116,7 +101,6 @@ class MainActivity : ComponentActivity() {
         }
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
 
-// Grant read permission to the receiving app.
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
         startActivity(intent)
