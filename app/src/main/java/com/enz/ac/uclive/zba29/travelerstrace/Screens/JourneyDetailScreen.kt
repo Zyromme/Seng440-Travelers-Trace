@@ -11,10 +11,16 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +63,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -71,6 +78,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -82,6 +90,7 @@ import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatDistance
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatTime
 import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.md_theme_dark_surface
+import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.md_theme_light_primary
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -95,6 +104,7 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -120,6 +130,9 @@ fun JourneyDetailScreen(
     var cameraPosition by remember { mutableStateOf( LatLng(-43.5320, 172.6306) ) }
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
 
     LaunchedEffect(journeyId) {
         journeyDetailViewModel.getJourneyById(journeyId!!.toLong())
@@ -132,6 +145,11 @@ fun JourneyDetailScreen(
         journey = journeyDetailViewModel.currentJourney
         photos = journeyDetailViewModel.journeyPhotos
         cameraPosition = latLong[0]
+    }
+
+    LaunchedEffect(journeyId) {
+        delay(1300)
+        isLoading = false
     }
 
     var isPhotoDialogShowing by remember{ mutableStateOf(false) }
@@ -182,6 +200,23 @@ fun JourneyDetailScreen(
             )
         }
     ) {
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .zIndex(1f)
+                    .background(Color.Gray),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LoadingAnimation()
+                }
+            }
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -455,4 +490,69 @@ fun getRoundedCornerBitmap(bitmap: Bitmap): Bitmap {
     paint.strokeWidth = 10f
     canvas.drawCircle((w / 2 + 8).toFloat(), (h / 2 + 8).toFloat(), radius.toFloat(), paint)
     return output
+}
+
+/*
+    Loading animation
+    https://semicolonspace.com/jetpack-compose-loading-animation-2/
+ */
+@Composable
+fun LoadingAnimation(
+    circleColor: Color = md_theme_light_primary,
+    animationDelay: Int = 1500
+) {
+
+    // 3 circles
+    val circles = listOf(
+        remember {
+            Animatable(initialValue = 0f)
+        },
+        remember {
+            Animatable(initialValue = 0f)
+        },
+        remember {
+            Animatable(initialValue = 0f)
+        }
+    )
+
+    circles.forEachIndexed { index, animatable ->
+        LaunchedEffect(Unit) {
+            // Use coroutine delay to sync animations
+            // divide the animation delay by number of circles
+            delay(timeMillis = (animationDelay / 3L) * (index + 1))
+
+            animatable.animateTo(
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = animationDelay,
+                        easing = LinearEasing
+                    ),
+                    repeatMode = RepeatMode.Restart
+                )
+            )
+        }
+    }
+
+    // outer circle
+    Box(
+        modifier = Modifier
+            .size(size = 200.dp)
+            .background(color = Color.Transparent)
+    ) {
+        // animating circles
+        circles.forEachIndexed { index, animatable ->
+            Box(
+                modifier = Modifier
+                    .scale(scale = animatable.value)
+                    .size(size = 200.dp)
+                    .clip(shape = CircleShape)
+                    .background(
+                        color = circleColor
+                            .copy(alpha = (1 - animatable.value))
+                    )
+            ) {
+            }
+        }
+    }
 }
