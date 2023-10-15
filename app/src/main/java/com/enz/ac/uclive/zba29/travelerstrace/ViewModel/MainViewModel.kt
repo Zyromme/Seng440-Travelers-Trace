@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.model.Photo
 import com.enz.ac.uclive.zba29.travelerstrace.repository.JourneyRepository
 import com.enz.ac.uclive.zba29.travelerstrace.repository.LatLongRepository
 import com.enz.ac.uclive.zba29.travelerstrace.repository.PhotoRepository
@@ -40,6 +41,11 @@ class MainViewModel @Inject constructor(
             latLongRepository.deleteAllLatLongByJourneyId(journey.id)
             photoRepository.deleteAllPhotosByJourneyId(journey.id)
         }
+    }
+
+    suspend fun getFirstPhoto(journeyId: Long): Photo {
+        val photo = photoRepository.getAllPhotosByJourneyId(journeyId)
+        return if (photo.isNotEmpty()) photo[0] else Photo(0,0,0.0,0.0,"")
     }
 
 }
