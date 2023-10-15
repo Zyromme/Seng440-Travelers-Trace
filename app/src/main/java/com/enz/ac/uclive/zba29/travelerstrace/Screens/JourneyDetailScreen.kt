@@ -18,18 +18,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.sharp.Description
 import androidx.compose.material.icons.sharp.Info
+import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material.icons.sharp.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
@@ -55,6 +62,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -62,8 +71,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
+import com.enz.ac.uclive.zba29.travelerstrace.service.formatDistance
+import com.enz.ac.uclive.zba29.travelerstrace.service.formatTime
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -82,7 +95,8 @@ import java.io.File
 fun JourneyDetailScreen(
     journeyId: String?,
     navController: NavController,
-    journeyDetailViewModel: JourneyDetailViewModel
+    journeyDetailViewModel: JourneyDetailViewModel,
+    settings: Settings
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     var dialogMaxHeight = 0.8f
@@ -126,7 +140,8 @@ fun JourneyDetailScreen(
     journeyDetails(
         sheetState,
         showBottomSheet,
-        journey!!
+        journey!!,
+        settings.metric
     )
 
     Scaffold(
@@ -160,82 +175,42 @@ fun JourneyDetailScreen(
                     .fillMaxSize()
                     .padding(it),
             ){
-//                Column (
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .verticalScroll(state)
-//                        .padding(it)
-//                ){
-                    GoogleMap(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        cameraPositionState = cameraPositionState
-                    ) {
-                        val scope = rememberCoroutineScope()
-                        MapEffect(cameraPosition) { map ->
-                            map.setOnMapLoadedCallback {
-                                scope.launch {
-                                    cameraPositionState.animate(
-                                        CameraUpdateFactory.newLatLng(
-                                            cameraPosition
-                                        )
+                GoogleMap(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    cameraPositionState = cameraPositionState
+                ) {
+                    val scope = rememberCoroutineScope()
+                    MapEffect(cameraPosition) { map ->
+                        map.setOnMapLoadedCallback {
+                            scope.launch {
+                                cameraPositionState.animate(
+                                    CameraUpdateFactory.newLatLng(
+                                        cameraPosition
                                     )
-                                }
+                                )
                             }
                         }
+                    }
 
-                        photos.forEach { photo ->
-                            Circle(
-                                center = LatLng(photo.lat, photo.lng),
-                                clickable = true,
-                                fillColor = Color.Cyan.copy(alpha = 0.5f),
-                                radius = 3.0,
-                                strokeColor = Color.Blue,
-                                onClick = {
-                                    showPhotoDialog(photo.filePath)
-                                }
-                            )
-                        }
-                        Polyline(
-                            points = latLong,
-                            color = Color.Blue,
-                            width = 20f,
+                    photos.forEach { photo ->
+                        Circle(
+                            center = LatLng(photo.lat, photo.lng),
+                            clickable = true,
+                            fillColor = Color.Cyan.copy(alpha = 0.5f),
+                            radius = 3.0,
+                            strokeColor = Color.Blue,
+                            onClick = {
+                                showPhotoDialog(photo.filePath)
+                            }
                         )
                     }
-//                    Spacer(modifier = Modifier.height(20.dp))
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        Column {
-//                            Text(
-//                                text = journey!!.title,
-//                                fontSize = 30.sp,
-//                                fontWeight = FontWeight.Bold
-//                            )
-//                            Text(
-//                                text = journey!!.date,
-//                                color = Color.LightGray,
-//                                fontSize = 20.sp
-//                            )
-//                        }
-//                        IconButton(
-//                            onClick = { /*TODO: Call the share photo intent*/ },
-//                            content = {
-//                                Icon(
-//                                    imageVector = Icons.Sharp.Share,
-//                                    contentDescription = "Share Icon",
-//                                    modifier = Modifier.fillMaxSize()
-//                                )
-//                            }
-//
-//                        )
-//                    }
-//                    Spacer(modifier = Modifier.height(10.dp))
-//                    Text(
-//                        text = journey!!.description
-//                    )
-//                }
+                    Polyline(
+                        points = latLong,
+                        color = Color.Blue,
+                        width = 20f,
+                    )
+                }
             }
         }
     )
@@ -313,7 +288,8 @@ private fun PhotoImage(photoUri: String) {
 fun journeyDetails(
     sheetState: SheetState,
     showBottomSheet: MutableState<Boolean>,
-    journey: Journey
+    journey: Journey,
+    measureSetting: String
 ) {
     if (showBottomSheet.value) {
         ModalBottomSheet(
@@ -322,8 +298,83 @@ fun journeyDetails(
             },
             sheetState = sheetState
         ) {
-            // Sheet content
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                    Spacer(modifier = Modifier.height(8.dp))
 
+                    Text(
+                        text = buildString {
+                            append(journey.date)
+                        },
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Row(verticalAlignment = Alignment.Bottom) {
+
+                        Icon(
+                            imageVector = Icons.Sharp.LocationOn,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp, 16.dp),
+                            tint = Color.Red
+                        )
+
+                        Text(
+                            text = buildString {
+                                append(formatDistance(journey.totalDistance, measureSetting))
+                            },
+                            modifier = Modifier.padding(8.dp, 12.dp, 12.dp, 0.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        Icon(
+                            imageVector = Icons.Sharp.Timer,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp, 16.dp),
+                        )
+
+                        Text(
+                            text = buildString {
+                                append(formatTime(journey.duration))
+                            },
+                            modifier = Modifier.padding(8.dp, 12.dp, 12.dp, 0.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                    Divider(thickness = 1.dp,
+                         modifier = Modifier.padding(0.dp, 10.dp))
+                    Row {
+                        Icon(
+                            imageVector = Icons.Sharp.Description,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp, 16.dp),
+                        )
+                        Text(
+                            text = buildString {
+                                append(stringResource(R.string.on_journey_description))
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = buildString {
+                                append(journey.description)
+                            },
+                            modifier = Modifier.padding(8.dp, 12.dp, 12.dp, 0.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.padding(50.dp))
         }
     }
 }
