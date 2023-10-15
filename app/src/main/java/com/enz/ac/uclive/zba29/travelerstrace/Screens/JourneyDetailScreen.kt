@@ -234,6 +234,15 @@ fun JourneyDetailScreen(
                         }
                     }
                 }
+                Marker(
+                    state = MarkerState(LatLng(latLong.first().latitude, latLong.first().longitude)),
+                    title = "Start"
+                )
+
+                Marker(
+                    state = MarkerState(LatLng(latLong.last().latitude, latLong.last().longitude)),
+                    title = "End"
+                )
 
                 photos.forEach { photo ->
                     PhotoMarkers(photo, { filePath -> showPhotoDialog(filePath) })
