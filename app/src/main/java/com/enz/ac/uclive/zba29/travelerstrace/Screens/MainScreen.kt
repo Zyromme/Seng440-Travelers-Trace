@@ -143,7 +143,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                             DismissBackground(dismissState = dismissState)
                                         },
                                         dismissContent = {
-                                            JourneyCard(journey, navController, settings.metric)
+                                            JourneyCard(journey, navController, settings.metric, viewModel = viewModel)
                                         }
                                     )
                                 }
@@ -176,7 +176,7 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                                             DismissBackground(dismissState = dismissState)
                                         },
                                         dismissContent = {
-                                            JourneyCard(journeyList[id], navController, settings.metric)
+                                            JourneyCard(journeyList[id], navController, settings.metric, viewModel = viewModel)
                                         }
                                     )
                                 }

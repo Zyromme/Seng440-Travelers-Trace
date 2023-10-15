@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.Image
 import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material.icons.sharp.Timer
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.typography
@@ -28,11 +30,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
@@ -41,7 +45,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.enz.ac.uclive.zba29.travelerstrace.Screens.Screen
+import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.MainViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.datastore.StoreSettings
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatDistance
@@ -51,7 +59,15 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JourneyCard(journey: Journey, navController: NavController, measureSetting: String) {
+fun JourneyCard(journey: Journey, navController: NavController, measureSetting: String, viewModel: MainViewModel) {
+    var filePath by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(Unit) {
+        filePath = viewModel.getFirstPhoto(journey.id).filePath
+    }
+
     Card(
         onClick = { navController.navigate(Screen.JourneyDetailScreen.withArgs(journey.id.toString())) },
         shape = RoundedCornerShape(16.dp),
@@ -65,16 +81,30 @@ fun JourneyCard(journey: Journey, navController: NavController, measureSetting: 
                 .padding(16.dp)
         ) {
 
-//            val image = rememberImagePainter(data = journey.image)
-//            Image(
-//                modifier = Modifier
-//                    .size(80.dp, 80.dp)
-//                    .clip(RoundedCornerShape(16.dp)),
-//                painter = image,
-//                alignment = Alignment.CenterStart,
-//                contentDescription = "",
-//                contentScale = ContentScale.Crop
-//            )
+            SubcomposeAsyncImage(
+                model = filePath,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(80.dp, 80.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            ) {
+                val state = painter.state
+                if (state is AsyncImagePainter.State.Loading) {
+                    CircularProgressIndicator()
+                } else if (state is AsyncImagePainter.State.Error) {
+                    Icon(
+                        imageVector = Icons.Sharp.Image,
+                        contentDescription = null,
+                    )
+                }
+                else {
+                    SubcomposeAsyncImageContent(
+                        modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -91,8 +121,6 @@ fun JourneyCard(journey: Journey, navController: NavController, measureSetting: 
                 Text(
                     text = buildString {
                         append(journey.date)
-                        append(" | ")
-                        append(journey.type)
                     },
                     fontWeight = FontWeight.Light,
                     fontStyle = FontStyle.Italic,
