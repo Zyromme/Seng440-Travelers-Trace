@@ -26,4 +26,5 @@
     <string name="cancel_camera">Cancel</string>
     <string name="retake_camera">Retake</string>
     <string name="save_camera">Save</string>
+    <string name="tracking_journey">Tracking Journey</string>
 </resources>

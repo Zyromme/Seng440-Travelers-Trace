@@ -243,7 +243,7 @@ class TrackingService: LifecycleService() {
         val seconds: Int = counter.rem(60)
 
         return NotificationCompat.Builder(this, R.string.channel_id.toString())
-            .setContentTitle("Tracing Run")
+            .setContentTitle(applicationContext.getString(R.string.tracking_journey))
             .setOngoing(true)
             .setContentText(
                 "${"%02d".format(hours)}:${"%02d".format(minutes)}:${
