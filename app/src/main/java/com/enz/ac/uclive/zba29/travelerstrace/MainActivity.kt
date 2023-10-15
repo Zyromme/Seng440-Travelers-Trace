@@ -51,7 +51,14 @@ class MainActivity : ComponentActivity() {
 
     private val multiplePermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { }
+    ) {permissions ->
+        // Check if all permissions are granted
+        val allPermissionsGranted = permissions.all{it.value}
+        if (allPermissionsGranted) {
+            mapViewModel.getDeviceLocation(fusedLocationProviderClient)
+        }
+    }
+
 
     private fun checkAndRequestPermissions() {
         val permissionToRequest = arrayOf(
@@ -70,6 +77,10 @@ class MainActivity : ComponentActivity() {
 
         if (permissionsNotGranted.isNotEmpty()) {
             multiplePermissionsLauncher.launch(permissionsNotGranted.toTypedArray())
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mapViewModel.getDeviceLocation(fusedLocationProviderClient)
         }
     }
 
