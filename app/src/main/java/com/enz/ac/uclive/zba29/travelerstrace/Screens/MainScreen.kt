@@ -85,7 +85,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
     val currentDate = LocalDate.now().format(dateFormatter)
     val scope = rememberCoroutineScope()
     var isDeleteConfirmationActive by remember { mutableStateOf(false) }
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     fun showDeleteConfirmationDialog(journey: Journey) {
         journeyToDelete = journey
@@ -120,7 +119,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                 )
             },
             content = {
-                if (!isLandscape) { // Portrait
                     LazyColumn(
                         modifier = Modifier.padding(it)
                     ) {
@@ -153,39 +151,6 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                             Spacer(modifier = Modifier.padding(35.dp))
                         }
                     }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 350.dp),
-                        modifier = Modifier.padding(it).fillMaxWidth()
-                    ) {
-                        items(journeyList.size) { id ->
-                                if (journeyList[id].id != TrackingService.currentJourney.value) {
-                                    val dismissState = rememberDismissState(
-                                        positionalThreshold = { 130.dp.toPx() },
-                                        confirmValueChange = { dismissValue ->
-                                            if (dismissValue == DismissValue.DismissedToStart) {
-                                                    showDeleteConfirmationDialog(journeyList[id])
-                                            }
-                                            true
-                                        }
-                                    )
-                                    SwipeToDismiss(
-                                        state = dismissState,
-                                        directions = setOf(DismissDirection.EndToStart),
-                                        background = {
-                                            DismissBackground(dismissState = dismissState)
-                                        },
-                                        dismissContent = {
-                                            JourneyCard(journeyList[id], navController, settings.metric, viewModel = viewModel)
-                                        }
-                                    )
-                                }
-                            }
-                        item() {
-                            Spacer(modifier = Modifier.padding(35.dp))
-                        }
-                    }
-                }
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = {

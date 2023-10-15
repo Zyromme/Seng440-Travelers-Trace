@@ -258,7 +258,7 @@ class TrackingService: LifecycleService() {
                     )
                 }"
             )
-            .setSmallIcon(R.mipmap.ic_launcher_travelers_trace_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher_travelers_trace_light_violet_foreground)
             .setOnlyAlertOnce(true)
 //            .setContentIntent(pIntent)
             .build()
