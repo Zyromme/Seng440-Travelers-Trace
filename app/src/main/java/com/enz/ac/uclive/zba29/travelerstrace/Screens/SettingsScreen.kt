@@ -36,9 +36,9 @@ fun SettingsScreen(
     currentSettings: Settings,
     onSettingsChange: (Settings) -> Unit) {
 
-    val distanceMetrics = arrayOf("Metric", "Imperial")
+    val distanceMetrics = arrayOf(stringResource(R.string.metric), stringResource(R.string.imperial))
     val languages = arrayOf("English", "Pirate")
-    val trackingInterval = arrayOf("3s", "5s", "10s")
+    val trackingInterval = arrayOf(stringResource(R.string.three_seconds), stringResource(R.string.five_seconds), stringResource(R.string.ten_seconds))
 
     val settings by remember { mutableStateOf(currentSettings) }
 

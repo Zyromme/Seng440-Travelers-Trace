@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
         val filesToSend: List<String> = photos.map { it.filePath }.toList()
         val intent = Intent()
         intent.action = Intent.ACTION_SEND_MULTIPLE
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some photos.")
+        intent.putExtra(Intent.EXTRA_SUBJECT, "These are my journey photos.")
         intent.type = "image/jpeg" // This example is sharing jpeg images
 
         val files = ArrayList<Uri>()

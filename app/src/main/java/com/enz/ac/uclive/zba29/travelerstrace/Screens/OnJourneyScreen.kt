@@ -221,7 +221,7 @@ fun PortraitOnJourneyScreen(
                                     .width(30.dp)
                                     .height(30.dp),
                                 imageVector = Icons.Sharp.CameraAlt,
-                                contentDescription = "Button to go to camera",
+                                contentDescription = null,
                                 tint = Color.White
                             )
                         }
@@ -243,7 +243,7 @@ fun PortraitOnJourneyScreen(
                                     .width(70.dp)
                                     .height(70.dp),
                                 imageVector = Icons.TwoTone.Stop,
-                                contentDescription = "",
+                                contentDescription = null,
                                 tint = Color.White
                             )
                         }
@@ -257,7 +257,7 @@ fun PortraitOnJourneyScreen(
                                     .width(30.dp)
                                     .height(30.dp),
                                 imageVector = Icons.TwoTone.EditNote,
-                                contentDescription = "",
+                                contentDescription = null,
                                 tint = Color.White
                             )
                         }
@@ -359,7 +359,7 @@ fun LandScapeOnJourneyScreen(
                                 .width(30.dp)
                                 .height(30.dp),
                             imageVector = Icons.TwoTone.EditNote,
-                            contentDescription = "Button to go to camera",
+                            contentDescription = null,
                             tint = Color.White
                         )
                     }
@@ -370,7 +370,7 @@ fun LandScapeOnJourneyScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Sharp.CameraAlt,
-                            contentDescription = "Button to go to camera",
+                            contentDescription = null,
                             tint = Color.White
                         )
                     }
@@ -389,7 +389,7 @@ fun LandScapeOnJourneyScreen(
                                 .width(30.dp)
                                 .height(30.dp),
                             imageVector = Icons.TwoTone.Stop,
-                            contentDescription = "Button to go to camera",
+                            contentDescription = null,
                             tint = Color.White
                         )
                     }
@@ -446,7 +446,7 @@ fun editJourneyModal(
                     onSave()
                     showBottomSheet.value = false
                 }) {
-                    Text("Save Changes")
+                    Text(stringResource(R.string.save_changes))
                 }
                 Spacer(modifier = Modifier.padding(50.dp))
             }

@@ -15,7 +15,14 @@
     <string name="delete_dialog_delete">Delete</string>
     <string name="delete_dialog_cancel">Cancel</string>
     <string name="toast_delete">Journey Removed</string>
-    <string name="edit_journey">Edit Details</string>
+    <string name="metric">Metric</string>
+    <string name="imperial">Imperial</string>
+    <string name="three_seconds">3s</string>
+    <string name="five_seconds">5s</string>
+    <string name="ten_seconds">10s</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="map">Map</string>
+    <string name="emptyString">Map</string>
     <string name="cancel_camera">Cancel</string>
     <string name="retake_camera">Retake</string>
     <string name="save_camera">Save</string>

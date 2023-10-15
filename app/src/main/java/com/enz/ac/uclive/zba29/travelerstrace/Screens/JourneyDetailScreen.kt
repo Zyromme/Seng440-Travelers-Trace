@@ -181,14 +181,14 @@ fun JourneyDetailScreen(
                     IconButton(onClick = { showBottomSheet.value = true }) {
                         Icon(
                             imageVector = Icons.Sharp.Info,
-                            contentDescription = "Journey Info Button"
+                            contentDescription = null
                         )
                     }
                     if (photos.isNotEmpty() && photos[0].filePath != "") {
                         IconButton(onClick = { sharePhotosIntent(photos) }) {
                             Icon(
                                 imageVector = Icons.Sharp.Share,
-                                contentDescription = "Share Journey Button"
+                                contentDescription = null
                             )
                         }
                     }
@@ -284,7 +284,7 @@ private fun PhotoImage(photoUri: String) {
 
     Image(
         painter = painter,
-        contentDescription = "Photo",
+        contentDescription = null,
         contentScale = ContentScale.Fit,
         modifier = Modifier
             .clipToBounds()
