@@ -3,26 +3,30 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.sharp.Description
@@ -30,8 +34,6 @@ import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material.icons.sharp.Share
 import androidx.compose.material.icons.sharp.Timer
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -53,44 +55,51 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.enz.ac.uclive.zba29.travelerstrace.R
 import com.enz.ac.uclive.zba29.travelerstrace.ViewModel.JourneyDetailViewModel
 import com.enz.ac.uclive.zba29.travelerstrace.model.Journey
+import com.enz.ac.uclive.zba29.travelerstrace.model.Photo
 import com.enz.ac.uclive.zba29.travelerstrace.model.Settings
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatDistance
 import com.enz.ac.uclive.zba29.travelerstrace.service.formatTime
+import com.enz.ac.uclive.zba29.travelerstrace.ui.theme.md_theme_dark_surface
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
 fun JourneyDetailScreen(
     journeyId: String?,
@@ -107,7 +116,7 @@ fun JourneyDetailScreen(
     var latLong by remember { mutableStateOf( journeyDetailViewModel.journeyGoogleLatLng ) }
     var journey by remember { mutableStateOf( journeyDetailViewModel.currentJourney ) }
     var photos by remember { mutableStateOf( journeyDetailViewModel.journeyPhotos ) }
-    var cameraPosition by remember { mutableStateOf( LatLng(43.5320, 172.6306) ) }
+    var cameraPosition by remember { mutableStateOf( LatLng(-43.5320, 172.6306) ) }
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet = remember { mutableStateOf(false) }
 
@@ -168,52 +177,42 @@ fun JourneyDetailScreen(
                     }
                 },
             )
-        },
-        content = {
-            Box(
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+        ) {
+            GoogleMap(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it),
-            ){
-                GoogleMap(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    cameraPositionState = cameraPositionState
-                ) {
-                    val scope = rememberCoroutineScope()
-                    MapEffect(cameraPosition) { map ->
-                        map.setOnMapLoadedCallback {
-                            scope.launch {
-                                cameraPositionState.animate(
-                                    CameraUpdateFactory.newLatLng(
-                                        cameraPosition
-                                    )
+                    .fillMaxSize(),
+                cameraPositionState = cameraPositionState
+            ) {
+                MapEffect(cameraPosition) { map ->
+                    map.setOnMapLoadedCallback {
+                        scope.launch {
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newLatLng(
+                                    cameraPosition
                                 )
-                            }
+                            )
                         }
                     }
-
-                    photos.forEach { photo ->
-                        Circle(
-                            center = LatLng(photo.lat, photo.lng),
-                            clickable = true,
-                            fillColor = Color.Cyan.copy(alpha = 0.5f),
-                            radius = 3.0,
-                            strokeColor = Color.Blue,
-                            onClick = {
-                                showPhotoDialog(photo.filePath)
-                            }
-                        )
-                    }
-                    Polyline(
-                        points = latLong,
-                        color = Color.Blue,
-                        width = 20f,
-                    )
                 }
+
+                photos.forEach { photo ->
+                    Log.e("FILEPATH", photo.filePath)
+                    PhotoMarkers(photo, { filePath -> showPhotoDialog(filePath) })
+                }
+                Polyline(
+                    points = latLong,
+                    color = Color.Blue,
+                    width = 20f,
+                )
             }
         }
-    )
+    }
 
     if (isPhotoDialogShowing) {
         DisplayPhotoDialog(
@@ -249,7 +248,7 @@ https://gist.github.com/JolandaVerhoef/41bbacadead2ba3ce8014d67014efbdd
 private fun PhotoImage(photoUri: String) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var zoom by remember { mutableStateOf(1f) }
-    val painter = rememberImagePainter(data = File(photoUri))
+    val painter = rememberAsyncImagePainter(model = File(photoUri))
 
     Image(
         painter = painter,
@@ -405,4 +404,52 @@ fun Offset.calculateNewOffset(
         newOffset.x.coerceIn(0f, (size.width / zoom) * (zoom - 1f)),
         newOffset.y.coerceIn(0f, (size.height / zoom) * (zoom - 1f))
     )
+}
+
+@Composable
+fun PhotoMarkers(photo: Photo, showPhotoDialog: (String) -> Unit) {
+    if (photo.filePath != "") {
+        val image = remember { mutableStateOf<BitmapDescriptor?>(null) }
+
+        LaunchedEffect(Unit) {
+            val bitmap = BitmapFactory.decodeFile(photo.filePath)
+            val sizedBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, false)
+            val roundBitmap = getRoundedCornerBitmap(sizedBitmap)
+            image.value = BitmapDescriptorFactory.fromBitmap(roundBitmap)
+        }
+
+        Marker(
+            state = MarkerState(LatLng(photo.lat, photo.lng)),
+            icon = image.value,
+            onClick = {
+                showPhotoDialog(photo.filePath)
+                true
+            }
+        )
+    }
+}
+
+
+/*
+ Make a bitmap have rounded corners
+https://stackoverflow.com/questions/74794828/custom-marker-icon-image-url-googlemap-compose-android
+ */
+fun getRoundedCornerBitmap(bitmap: Bitmap): Bitmap {
+    val w=bitmap.width
+    val h=bitmap.height
+    val radius = (h / 2).coerceAtMost(w / 2)
+    val output = Bitmap.createBitmap(w + 16, h + 16, Bitmap.Config.ARGB_8888)
+    val paint = Paint()
+    paint.isAntiAlias = true
+    val canvas = Canvas(output)
+    canvas.drawARGB(0, 0, 0, 0)
+    paint.style = Paint.Style.FILL
+    canvas.drawCircle((w / 2 + 8).toFloat(), (h / 2 + 8).toFloat(), radius.toFloat(), paint) //continue
+    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+    canvas.drawBitmap(bitmap, 4f, 4f, paint)
+    paint.xfermode = null
+    paint.style = Paint.Style.STROKE
+    paint.strokeWidth = 10f
+    canvas.drawCircle((w / 2 + 8).toFloat(), (h / 2 + 8).toFloat(), radius.toFloat(), paint)
+    return output
 }

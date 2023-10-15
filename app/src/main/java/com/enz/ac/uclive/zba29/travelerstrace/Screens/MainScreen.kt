@@ -3,18 +3,26 @@ package com.enz.ac.uclive.zba29.travelerstrace.Screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import android.annotation.SuppressLint
+import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.twotone.Explore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DismissDirection
@@ -50,6 +58,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
@@ -75,26 +84,16 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
     val dateFormatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_pattern))
     val currentDate = LocalDate.now().format(dateFormatter)
     val scope = rememberCoroutineScope()
-    val navBackStackEntry = navController.currentBackStackEntryAsState().value
     var isDeleteConfirmationActive by remember { mutableStateOf(false) }
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     fun showDeleteConfirmationDialog(journey: Journey) {
         journeyToDelete = journey
         isDeleteConfirmationActive = true
     }
 
-    LaunchedEffect(navBackStackEntry) {
-        // Listen for changes in the back stack entry
-        navBackStackEntry?.destination?.route?.let { currentDestination ->
-            if (currentDestination == Screen.MainScreen.route) {
-                // Reload data when returning from OnJourneyScreen
-                viewModel.reloadJourneyList()
-            }
-        }
-    }
-
     LaunchedEffect(isDeleteConfirmationActive) {
-        viewModel.reloadJourneyList()
+            viewModel.reloadJourneyList()
     }
 
     ModalNavigationDrawer(
@@ -121,40 +120,70 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                 )
             },
             content = {
-                LazyColumn(
-                    modifier = Modifier.padding(it)
-                ) {
-                    item(journeyList) {
-                        journeyList.forEach { journey ->
-                            if (journey.id != TrackingService.currentJourney.value ){
-                                val dismissState = rememberDismissState(
-                                    positionalThreshold = { 130.dp.toPx() },
-                                    confirmValueChange = { dismissValue ->
-                                        when (dismissValue) {
-                                            DismissValue.DismissedToStart -> {
-                                                showDeleteConfirmationDialog(journey)
+                if (!isLandscape) { // Portrait
+                    LazyColumn(
+                        modifier = Modifier.padding(it)
+                    ) {
+                        item(journeyList) {
+                            journeyList.forEach { journey ->
+                                if (journey.id != TrackingService.currentJourney.value) {
+                                    val dismissState = rememberDismissState(
+                                        positionalThreshold = { 130.dp.toPx() },
+                                        confirmValueChange = { dismissValue ->
+                                            if (dismissValue == DismissValue.DismissedToStart) {
+                                                    showDeleteConfirmationDialog(journey)
                                             }
-
-                                            else -> {}
+                                            true
                                         }
-                                        true
-                                    }
-                                )
-                                SwipeToDismiss(
-                                    state = dismissState,
-                                    directions = setOf(DismissDirection.EndToStart),
-                                    background = {
-                                        DismissBackground(dismissState = dismissState)
-                                    },
-                                    dismissContent = {
-                                        JourneyCard(journey, navController, settings.metric)
-                                    }
-                                )
+                                    )
+                                    SwipeToDismiss(
+                                        state = dismissState,
+                                        directions = setOf(DismissDirection.EndToStart),
+                                        background = {
+                                            DismissBackground(dismissState = dismissState)
+                                        },
+                                        dismissContent = {
+                                            JourneyCard(journey, navController, settings.metric)
+                                        }
+                                    )
+                                }
                             }
                         }
+                        item() {
+                            Spacer(modifier = Modifier.padding(35.dp))
+                        }
                     }
-                    item() {
-                        Spacer(modifier = Modifier.padding(35.dp))
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 350.dp),
+                        modifier = Modifier.padding(it).fillMaxWidth()
+                    ) {
+                        items(journeyList.size) { id ->
+                                if (journeyList[id].id != TrackingService.currentJourney.value) {
+                                    val dismissState = rememberDismissState(
+                                        positionalThreshold = { 130.dp.toPx() },
+                                        confirmValueChange = { dismissValue ->
+                                            if (dismissValue == DismissValue.DismissedToStart) {
+                                                    showDeleteConfirmationDialog(journeyList[id])
+                                            }
+                                            true
+                                        }
+                                    )
+                                    SwipeToDismiss(
+                                        state = dismissState,
+                                        directions = setOf(DismissDirection.EndToStart),
+                                        background = {
+                                            DismissBackground(dismissState = dismissState)
+                                        },
+                                        dismissContent = {
+                                            JourneyCard(journeyList[id], navController, settings.metric)
+                                        }
+                                    )
+                                }
+                            }
+                        item() {
+                            Spacer(modifier = Modifier.padding(35.dp))
+                        }
                     }
                 }
             },
@@ -181,9 +210,10 @@ fun MainScreen(navController: NavController, viewModel: MainViewModel, onStart: 
                     shape = CircleShape,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
+                        imageVector = if (viewModel.journeyId == null) Icons.Default.PlayArrow else Icons.TwoTone.Explore,
                         contentDescription = null,
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             },
