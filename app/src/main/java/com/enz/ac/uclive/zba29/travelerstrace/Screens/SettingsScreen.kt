@@ -84,15 +84,6 @@ fun SettingsScreen(
                     }
                 )
                 SettingsDropdown(
-                    title = "Language",
-                    choices = languages,
-                    initialValue = settings.language,
-                    onChange = { newLanguage ->
-                        settings.language = newLanguage
-                        onSettingsChange(settings)
-                    }
-                )
-                SettingsDropdown(
                     title = "Tracking Interval",
                     choices = trackingInterval,
                     initialValue = settings.trackingInterval,
